@@ -294,6 +294,38 @@ def open_exam(code, neg):
     ex["negative_marking"] = NEG_RRB if neg else 0.0
     s.pending = ex; st.rerun()
 
+def upload_panel(neg):
+    """Pick exam .json files from your computer: start them directly and/or save them into exams/."""
+    st.markdown("<style>[data-testid='stFileUploaderDropzone']{border:2px dashed #818cf8;background:#eef2ff;border-radius:14px}</style>", unsafe_allow_html=True)
+    with st.container(border=True, key="uploadbox"):
+        st.markdown("#### 📤 Upload an exam file")
+        if s.get("flash"): st.success(s.pop("flash"))
+        files = st.file_uploader("Choose one or more exam .json files (any layout the app supports)", type=["json"],
+                                 accept_multiple_files=True, key="exam_upload")
+        for f in files or []:
+            code = re.sub(r"[^A-Za-z0-9_\-]", "_", Path(f.name).stem)[:60] or "UPLOAD"
+            uid = re.sub(r"\W", "_", f"{f.name}_{f.size}")
+            try:
+                ex = normalize(json.loads(f.getvalue().decode("utf-8-sig")), code)
+            except (ValueError, UnicodeDecodeError) as e:        # JSONDecodeError is a ValueError
+                st.error(f"**{f.name}** can't be used: {e}"); continue
+            secs = {}
+            for q in ex["questions"]: secs[q["section"]] = secs.get(q["section"], 0) + 1
+            exists = find_exam(code)
+            c1, c2, c3 = st.columns([3, 1.3, 1.3], vertical_alignment="center")
+            c1.markdown(f"✅ **{html.escape(f.name)}** → code `{code}` · **{len(ex['questions'])}** questions · "
+                        + ", ".join(f"{a} {b}" for a, b in secs.items()))
+            ow = c1.checkbox("A file with this code exists: overwrite it", key=f"ow_{uid}") if exists else True
+            if c2.button("💾 Save to library", key=f"sv_{uid}", width="stretch"):
+                if not ow: st.warning("Tick overwrite to replace the existing exam.")
+                else:
+                    EXAMS.mkdir(exist_ok=True)
+                    (exists or EXAMS / f"{code}.json").write_bytes(f.getvalue())
+                    s.flash = f"Saved as {code}. It now appears under Choose a test."; st.rerun()
+            if c3.button("▶ Start now", key=f"go_{uid}", type="primary", width="stretch"):
+                ex["negative_marking"] = NEG_RRB if neg else 0.0
+                s.pending = ex; st.rerun()
+
 # ---------------- instructions + candidate name ----------------
 def instructions():
     ex = s.pending; Qs = ex["questions"]; n = len(Qs); mins = ex["duration_minutes"]
@@ -353,6 +385,7 @@ if "exam" not in s:
         go = c2.button("Load code", type="primary", width="stretch")
         neg = c3.toggle("Negative marking (1/3)", value=True)
         if go: open_exam(typed, neg)
+        upload_panel(neg)
         st.markdown("### 🗂 Choose a test")
         if avail.empty: st.info("No exam files found in the exams folder.")
         rows = avail.to_dict("records")
