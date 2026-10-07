@@ -1,0 +1,812 @@
+{
+ "code": "ALP-20261006-K7M42",
+ "title": "RRB ALP CBT-1 Mock – ALP-20261006-K7M42",
+ "duration_minutes": 60,
+ "marks_per_question": 1,
+ "negative_marking": 0.0,
+ "questions": [
+  {
+   "id": "7699b9beb0",
+   "section": "Mathematics",
+   "topic": "Simple Interest",
+   "difficulty": "Medium",
+   "question": "Find the simple interest on Rs 1000 at 4% per annum for 4 years.",
+   "options": [
+    "260",
+    "160",
+    "320",
+    "110"
+   ],
+   "answer": 1,
+   "explanation": "SI = P×R×T/100 = 1000×4×4/100 = 160."
+  },
+  {
+   "id": "6e8b69e515",
+   "section": "Mathematics",
+   "topic": "Profit & Loss",
+   "difficulty": "Medium",
+   "question": "An article bought for Rs 500 is sold at 30% profit. Find the selling price (Rs).",
+   "options": [
+    "680",
+    "590",
+    "500",
+    "650"
+   ],
+   "answer": 3,
+   "explanation": "SP = 500×(100+30)/100 = 650."
+  },
+  {
+   "id": "dc4d99a8e0",
+   "section": "Mathematics",
+   "topic": "Profit & Loss",
+   "difficulty": "Medium",
+   "question": "An article bought for Rs 400 is sold at 20% profit. Find the selling price (Rs).",
+   "options": [
+    "480",
+    "440",
+    "500",
+    "400"
+   ],
+   "answer": 0,
+   "explanation": "SP = 400×(100+20)/100 = 480."
+  },
+  {
+   "id": "2e3f45c7a8",
+   "section": "Mathematics",
+   "topic": "Percentage",
+   "difficulty": "Easy",
+   "question": "What is 25% of 800?",
+   "options": [
+    "210",
+    "200",
+    "400",
+    "190"
+   ],
+   "answer": 1,
+   "explanation": "800 × 25/100 = 200."
+  },
+  {
+   "id": "3653fa7e92",
+   "section": "Mathematics",
+   "topic": "Average",
+   "difficulty": "Easy",
+   "question": "Find the average of 17, 34, 10, 53, 61.",
+   "options": [
+    "37",
+    "34",
+    "36",
+    "35"
+   ],
+   "answer": 3,
+   "explanation": "Sum = 175; ÷5 = 35."
+  },
+  {
+   "id": "858666b80e",
+   "section": "Mathematics",
+   "topic": "Average",
+   "difficulty": "Easy",
+   "question": "Find the average of 25, 44, 19, 60, 22.",
+   "options": [
+    "33",
+    "34",
+    "36",
+    "35"
+   ],
+   "answer": 1,
+   "explanation": "Sum = 170; ÷5 = 34."
+  },
+  {
+   "id": "6db4f3399b",
+   "section": "Mathematics",
+   "topic": "Average",
+   "difficulty": "Easy",
+   "question": "Find the average of 31, 33, 52, 53, 11.",
+   "options": [
+    "35",
+    "37",
+    "36",
+    "38"
+   ],
+   "answer": 2,
+   "explanation": "Sum = 180; ÷5 = 36."
+  },
+  {
+   "id": "bfc34a8274",
+   "section": "Mathematics",
+   "topic": "Simple Interest",
+   "difficulty": "Medium",
+   "question": "Find the simple interest on Rs 6000 at 8% per annum for 3 years.",
+   "options": [
+    "2040",
+    "2880",
+    "1140",
+    "1440"
+   ],
+   "answer": 3,
+   "explanation": "SI = P×R×T/100 = 6000×8×3/100 = 1440."
+  },
+  {
+   "id": "4b8bc7a304",
+   "section": "Mathematics",
+   "topic": "Simple Interest",
+   "difficulty": "Medium",
+   "question": "Find the simple interest on Rs 3500 at 6% per annum for 2 years.",
+   "options": [
+    "420",
+    "840",
+    "770",
+    "245"
+   ],
+   "answer": 0,
+   "explanation": "SI = P×R×T/100 = 3500×6×2/100 = 420."
+  },
+  {
+   "id": "de0eb01b2d",
+   "section": "Mathematics",
+   "topic": "Average",
+   "difficulty": "Easy",
+   "question": "Find the average of 13, 10, 42, 19, 56.",
+   "options": [
+    "29",
+    "30",
+    "27",
+    "28"
+   ],
+   "answer": 3,
+   "explanation": "Sum = 140; ÷5 = 28."
+  },
+  {
+   "id": "38fc734af8",
+   "section": "Mathematics",
+   "topic": "Simple Interest",
+   "difficulty": "Medium",
+   "question": "Find the simple interest on Rs 8500 at 10% per annum for 5 years.",
+   "options": [
+    "8500",
+    "3825",
+    "5100",
+    "4250"
+   ],
+   "answer": 3,
+   "explanation": "SI = P×R×T/100 = 8500×10×5/100 = 4250."
+  },
+  {
+   "id": "6de8f5456d",
+   "section": "Mathematics",
+   "topic": "Ratio & Proportion",
+   "difficulty": "Medium",
+   "question": "Rs 400 is divided in the ratio 3:7. What is the larger share (Rs)?",
+   "options": [
+    "120",
+    "280",
+    "320",
+    "240"
+   ],
+   "answer": 1,
+   "explanation": "Total parts 10; one part = 40; larger = 7×40 = 280."
+  },
+  {
+   "id": "9ae2c4ec8d",
+   "section": "Mathematics",
+   "topic": "Percentage",
+   "difficulty": "Easy",
+   "question": "What is 25% of 1240?",
+   "options": [
+    "310",
+    "320",
+    "620",
+    "300"
+   ],
+   "answer": 0,
+   "explanation": "1240 × 25/100 = 310."
+  },
+  {
+   "id": "08695eed60",
+   "section": "Mathematics",
+   "topic": "Time, Speed & Distance",
+   "difficulty": "Easy",
+   "question": "A train runs at 90 km/h. How far does it travel in 4 hours?",
+   "options": [
+    "270 km",
+    "450 km",
+    "360 km",
+    "370 km"
+   ],
+   "answer": 2,
+   "explanation": "Distance = 90×4 = 360 km."
+  },
+  {
+   "id": "f6eb36a19a",
+   "section": "Mathematics",
+   "topic": "Simple Interest",
+   "difficulty": "Medium",
+   "question": "Find the simple interest on Rs 6000 at 5% per annum for 4 years.",
+   "options": [
+    "1200",
+    "1800",
+    "900",
+    "2400"
+   ],
+   "answer": 0,
+   "explanation": "SI = P×R×T/100 = 6000×5×4/100 = 1200."
+  },
+  {
+   "id": "334435c8e8",
+   "section": "Mathematics",
+   "topic": "Simple Interest",
+   "difficulty": "Medium",
+   "question": "Find the simple interest on Rs 6500 at 8% per annum for 3 years.",
+   "options": [
+    "1560",
+    "2210",
+    "3120",
+    "1235"
+   ],
+   "answer": 0,
+   "explanation": "SI = P×R×T/100 = 6500×8×3/100 = 1560."
+  },
+  {
+   "id": "4e8f83d7ad",
+   "section": "Mathematics",
+   "topic": "Profit & Loss",
+   "difficulty": "Medium",
+   "question": "An article bought for Rs 1400 is sold at 10% profit. Find the selling price (Rs).",
+   "options": [
+    "1540",
+    "1520",
+    "1550",
+    "1400"
+   ],
+   "answer": 0,
+   "explanation": "SP = 1400×(100+10)/100 = 1540."
+  },
+  {
+   "id": "e0c3526ebf",
+   "section": "Mathematics",
+   "topic": "Percentage",
+   "difficulty": "Easy",
+   "question": "What is 50% of 1820?",
+   "options": [
+    "900",
+    "910",
+    "920",
+    "1820"
+   ],
+   "answer": 1,
+   "explanation": "1820 × 50/100 = 910."
+  },
+  {
+   "id": "6884b9281b",
+   "section": "Mathematics",
+   "topic": "Percentage",
+   "difficulty": "Easy",
+   "question": "What is 50% of 1020?",
+   "options": [
+    "510",
+    "1020",
+    "500",
+    "520"
+   ],
+   "answer": 0,
+   "explanation": "1020 × 50/100 = 510."
+  },
+  {
+   "id": "f48c1f80f5",
+   "section": "Mathematics",
+   "topic": "Profit & Loss",
+   "difficulty": "Medium",
+   "question": "An article bought for Rs 800 is sold at 10% profit. Find the selling price (Rs).",
+   "options": [
+    "880",
+    "800",
+    "860",
+    "890"
+   ],
+   "answer": 0,
+   "explanation": "SP = 800×(100+10)/100 = 880."
+  },
+  {
+   "id": "6f7f3512b2",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 10, 15, 20, 25, ?",
+   "options": [
+    "30",
+    "35",
+    "31",
+    "29"
+   ],
+   "answer": 0,
+   "explanation": "Common difference 5; next = 30."
+  },
+  {
+   "id": "b3cb0c810b",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 52, 67, 84, 103, ?",
+   "options": [
+    "122",
+    "147",
+    "126",
+    "124"
+   ],
+   "answer": 3,
+   "explanation": "Terms are squares of 7, 8, … plus 3; next = 11² + 3 = 124."
+  },
+  {
+   "id": "a945919694",
+   "section": "Reasoning",
+   "topic": "Coding-Decoding",
+   "difficulty": "Medium",
+   "question": "If A=1, B=2, …, Z=26, what is the sum of letter values of 'LOCO'?",
+   "options": [
+    "48",
+    "44",
+    "45",
+    "46"
+   ],
+   "answer": 2,
+   "explanation": "L=12 + O=15 + C=3 + O=15 = 45."
+  },
+  {
+   "id": "2b4097bf95",
+   "section": "Reasoning",
+   "topic": "Coding-Decoding",
+   "difficulty": "Medium",
+   "question": "If A=1, B=2, …, Z=26, what is the sum of letter values of 'PILOT'?",
+   "options": [
+    "75",
+    "73",
+    "72",
+    "71"
+   ],
+   "answer": 2,
+   "explanation": "P=16 + I=9 + L=12 + O=15 + T=20 = 72."
+  },
+  {
+   "id": "92d8c1e751",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 20, 23, 26, 29, ?",
+   "options": [
+    "31",
+    "35",
+    "33",
+    "32"
+   ],
+   "answer": 3,
+   "explanation": "Common difference 3; next = 32."
+  },
+  {
+   "id": "7ea0d03fd0",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 7, 14, 21, 28, ?",
+   "options": [
+    "36",
+    "34",
+    "42",
+    "35"
+   ],
+   "answer": 3,
+   "explanation": "Common difference 7; next = 35."
+  },
+  {
+   "id": "73eb466bd4",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 2, 9, 16, 23, ?",
+   "options": [
+    "31",
+    "29",
+    "37",
+    "30"
+   ],
+   "answer": 3,
+   "explanation": "Common difference 7; next = 30."
+  },
+  {
+   "id": "c8ca837513",
+   "section": "Reasoning",
+   "topic": "Coding-Decoding",
+   "difficulty": "Medium",
+   "question": "If A=1, B=2, …, Z=26, what is the sum of letter values of 'TRACK'?",
+   "options": [
+    "56",
+    "54",
+    "52",
+    "53"
+   ],
+   "answer": 3,
+   "explanation": "T=20 + R=18 + A=1 + C=3 + K=11 = 53."
+  },
+  {
+   "id": "93e9df4ccf",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 15, 17, 19, 21, ?",
+   "options": [
+    "25",
+    "24",
+    "23",
+    "22"
+   ],
+   "answer": 2,
+   "explanation": "Common difference 2; next = 23."
+  },
+  {
+   "id": "ff6d59c1e0",
+   "section": "Reasoning",
+   "topic": "Coding-Decoding",
+   "difficulty": "Medium",
+   "question": "If A=1, B=2, …, Z=26, what is the sum of letter values of 'GUARD'?",
+   "options": [
+    "52",
+    "51",
+    "54",
+    "50"
+   ],
+   "answer": 1,
+   "explanation": "G=7 + U=21 + A=1 + R=18 + D=4 = 51."
+  },
+  {
+   "id": "5d22525881",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 8, 10, 12, 14, ?",
+   "options": [
+    "15",
+    "16",
+    "18",
+    "17"
+   ],
+   "answer": 1,
+   "explanation": "Common difference 2; next = 16."
+  },
+  {
+   "id": "25e9fd055d",
+   "section": "Reasoning",
+   "topic": "Alphabet Series",
+   "difficulty": "Easy",
+   "question": "Find the next letter: P, R, T, V, ?",
+   "options": [
+    "Y",
+    "Z",
+    "W",
+    "X"
+   ],
+   "answer": 3,
+   "explanation": "Each letter moves +2; next = X."
+  },
+  {
+   "id": "d734f542f1",
+   "section": "Reasoning",
+   "topic": "Coding-Decoding",
+   "difficulty": "Medium",
+   "question": "If A=1, B=2, …, Z=26, what is the sum of letter values of 'ENGINE'?",
+   "options": [
+    "55",
+    "53",
+    "57",
+    "54"
+   ],
+   "answer": 3,
+   "explanation": "E=5 + N=14 + G=7 + I=9 + N=14 + E=5 = 54."
+  },
+  {
+   "id": "03149b82b5",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 13, 22, 31, 40, ?",
+   "options": [
+    "49",
+    "48",
+    "50",
+    "58"
+   ],
+   "answer": 0,
+   "explanation": "Common difference 9; next = 49."
+  },
+  {
+   "id": "7bfa324482",
+   "section": "Reasoning",
+   "topic": "Alphabet Series",
+   "difficulty": "Easy",
+   "question": "Find the next letter: E, F, G, H, ?",
+   "options": [
+    "K",
+    "J",
+    "I",
+    "H"
+   ],
+   "answer": 2,
+   "explanation": "Each letter moves +1; next = I."
+  },
+  {
+   "id": "3c3d2d8605",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 64, 81, 100, 121, ?",
+   "options": [
+    "146",
+    "169",
+    "144",
+    "142"
+   ],
+   "answer": 2,
+   "explanation": "Terms are squares of 8, 9, … plus 0; next = 12² + 0 = 144."
+  },
+  {
+   "id": "c4cc35dba4",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 3, 9, 27, 81, ?",
+   "options": [
+    "108",
+    "240",
+    "243",
+    "246"
+   ],
+   "answer": 2,
+   "explanation": "Each term × 3; next = 243."
+  },
+  {
+   "id": "aba44fa14c",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 15, 19, 23, 27, ?",
+   "options": [
+    "31",
+    "30",
+    "35",
+    "32"
+   ],
+   "answer": 0,
+   "explanation": "Common difference 4; next = 31."
+  },
+  {
+   "id": "a8394cc3ac",
+   "section": "Reasoning",
+   "topic": "Alphabet Series",
+   "difficulty": "Easy",
+   "question": "Find the next letter: N, O, P, Q, ?",
+   "options": [
+    "S",
+    "T",
+    "Q",
+    "R"
+   ],
+   "answer": 3,
+   "explanation": "Each letter moves +1; next = R."
+  },
+  {
+   "id": "bdd37100ca",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 4, 9, 16, 25, ?",
+   "options": [
+    "49",
+    "36",
+    "38",
+    "34"
+   ],
+   "answer": 1,
+   "explanation": "Terms are squares of 2, 3, … plus 0; next = 6² + 0 = 36."
+  },
+  {
+   "id": "25cdc5904f",
+   "section": "Reasoning",
+   "topic": "Coding-Decoding",
+   "difficulty": "Medium",
+   "question": "If A=1, B=2, …, Z=26, what is the sum of letter values of 'TRAIN'?",
+   "options": [
+    "63",
+    "65",
+    "62",
+    "61"
+   ],
+   "answer": 2,
+   "explanation": "T=20 + R=18 + A=1 + I=9 + N=14 = 62."
+  },
+  {
+   "id": "036f5f78e4",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Easy",
+   "question": "Find the next term: 3, 12, 21, 30, ?",
+   "options": [
+    "39",
+    "38",
+    "48",
+    "40"
+   ],
+   "answer": 0,
+   "explanation": "Common difference 9; next = 39."
+  },
+  {
+   "id": "a095017a49",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 5, 10, 17, 26, ?",
+   "options": [
+    "39",
+    "50",
+    "37",
+    "35"
+   ],
+   "answer": 2,
+   "explanation": "Terms are squares of 2, 3, … plus 1; next = 6² + 1 = 37."
+  },
+  {
+   "id": "5b3407d566",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 37, 50, 65, 82, ?",
+   "options": [
+    "99",
+    "122",
+    "101",
+    "103"
+   ],
+   "answer": 2,
+   "explanation": "Terms are squares of 6, 7, … plus 1; next = 10² + 1 = 101."
+  },
+  {
+   "id": "907db28901",
+   "section": "Reasoning",
+   "topic": "Number Series",
+   "difficulty": "Medium",
+   "question": "Find the next term: 28, 39, 52, 67, ?",
+   "options": [
+    "84",
+    "82",
+    "86",
+    "103"
+   ],
+   "answer": 0,
+   "explanation": "Terms are squares of 5, 6, … plus 3; next = 9² + 3 = 84."
+  },
+  {
+   "section": "General Science",
+   "topic": "Chemistry",
+   "difficulty": "Easy",
+   "question": "What is the chemical formula of common salt?",
+   "options": [
+    "KCl",
+    "NaCl",
+    "CaCO3",
+    "NaOH"
+   ],
+   "answer": 1,
+   "explanation": "Common salt is sodium chloride, NaCl.",
+   "verified": true,
+   "id": "4c71dc5847"
+  },
+  {
+   "section": "General Science",
+   "topic": "Physics",
+   "difficulty": "Easy",
+   "question": "What is the SI unit of electric current?",
+   "options": [
+    "Volt",
+    "Ampere",
+    "Ohm",
+    "Watt"
+   ],
+   "answer": 1,
+   "explanation": "Current is measured in ampere (A).",
+   "verified": true,
+   "id": "28b1c67944"
+  },
+  {
+   "section": "General Science",
+   "topic": "Biology",
+   "difficulty": "Easy",
+   "question": "Which vitamin is produced in skin on exposure to sunlight?",
+   "options": [
+    "Vitamin A",
+    "Vitamin C",
+    "Vitamin D",
+    "Vitamin K"
+   ],
+   "answer": 2,
+   "explanation": "Sunlight (UV-B) triggers vitamin D synthesis in skin.",
+   "verified": true,
+   "id": "2eaf9e7638"
+  },
+  {
+   "section": "General Science",
+   "topic": "Chemistry",
+   "difficulty": "Medium",
+   "question": "The pH of a neutral solution at 25°C is:",
+   "options": [
+    "0",
+    "7",
+    "10",
+    "14"
+   ],
+   "answer": 1,
+   "explanation": "pH 7 is neutral at 25°C.",
+   "verified": true,
+   "id": "dd7b026ee6"
+  },
+  {
+   "section": "General Science",
+   "topic": "Biology",
+   "difficulty": "Easy",
+   "question": "Which organ pumps blood through the human body?",
+   "options": [
+    "Liver",
+    "Heart",
+    "Kidney",
+    "Lung"
+   ],
+   "answer": 1,
+   "explanation": "The heart pumps blood.",
+   "verified": true,
+   "id": "a764549127"
+  },
+  {
+   "section": "General Science",
+   "topic": "Chemistry",
+   "difficulty": "Easy",
+   "question": "Which gas is most abundant in Earth's atmosphere?",
+   "options": [
+    "Oxygen",
+    "Carbon dioxide",
+    "Nitrogen",
+    "Argon"
+   ],
+   "answer": 2,
+   "explanation": "Nitrogen makes up about 78% of air.",
+   "verified": true,
+   "id": "b3baf7cd39"
+  },
+  {
+   "section": "General Science",
+   "topic": "Physics",
+   "difficulty": "Easy",
+   "question": "The SI unit of force is:",
+   "options": [
+    "Joule",
+    "Pascal",
+    "Newton",
+    "Watt"
+   ],
+   "answer": 2,
+   "explanation": "Force is measured in newton (N).",
+   "verified": true,
+   "id": "fedf069ba1"
+  },
+  {
+   "section": "General Science",
+   "topic": "Physics",
+   "difficulty": "Easy",
+   "question": "Which law states V = IR?",
+   "options": [
+    "Faraday's law",
+    "Ohm's law",
+    "Newton's law",
+    "Boyle's law"
+   ],
+   "answer": 1,
+   "explanation": "Ohm's law relates voltage, current and resistance.",
+   "verified": true,
+   "id": "19bde2bdd4"
+  }
+ ]
+}

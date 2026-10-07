@@ -1,0 +1,10 @@
+[
+{"section":"General Science","topic":"Physics","difficulty":"Easy","question":"What is the SI unit of electric current?","options":["Volt","Ampere","Ohm","Watt"],"answer":1,"explanation":"Current is measured in ampere (A).","verified":true},
+{"section":"General Science","topic":"Physics","difficulty":"Easy","question":"Which law states V = IR?","options":["Faraday's law","Ohm's law","Newton's law","Boyle's law"],"answer":1,"explanation":"Ohm's law relates voltage, current and resistance.","verified":true},
+{"section":"General Science","topic":"Physics","difficulty":"Easy","question":"The SI unit of force is:","options":["Joule","Pascal","Newton","Watt"],"answer":2,"explanation":"Force is measured in newton (N).","verified":true},
+{"section":"General Science","topic":"Chemistry","difficulty":"Easy","question":"What is the chemical formula of common salt?","options":["KCl","NaCl","CaCO3","NaOH"],"answer":1,"explanation":"Common salt is sodium chloride, NaCl.","verified":true},
+{"section":"General Science","topic":"Chemistry","difficulty":"Easy","question":"Which gas is most abundant in Earth's atmosphere?","options":["Oxygen","Carbon dioxide","Nitrogen","Argon"],"answer":2,"explanation":"Nitrogen makes up about 78% of air.","verified":true},
+{"section":"General Science","topic":"Chemistry","difficulty":"Medium","question":"The pH of a neutral solution at 25°C is:","options":["0","7","10","14"],"answer":1,"explanation":"pH 7 is neutral at 25°C.","verified":true},
+{"section":"General Science","topic":"Biology","difficulty":"Easy","question":"Which vitamin is produced in skin on exposure to sunlight?","options":["Vitamin A","Vitamin C","Vitamin D","Vitamin K"],"answer":2,"explanation":"Sunlight (UV-B) triggers vitamin D synthesis in skin.","verified":true},
+{"section":"General Science","topic":"Biology","difficulty":"Easy","question":"Which organ pumps blood through the human body?","options":["Liver","Heart","Kidney","Lung"],"answer":1,"explanation":"The heart pumps blood.","verified":true}
+]
