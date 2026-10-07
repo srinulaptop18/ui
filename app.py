@@ -196,11 +196,35 @@ def save_answer(i):
     if v is not None: s.answers[i] = v
 
 # ---------------- progress & practice page ----------------
+def do_clear(scope):
+    with conn() as c:
+        if scope.startswith("Everything"):
+            n = c.execute("DELETE FROM attempts").rowcount
+        else:
+            n = c.execute("DELETE FROM attempts WHERE code = ?", (scope.split(": ", 1)[1],)).rowcount
+    s.clear_sure = False; s.clear_scope = "Everything (all attempts and scores)"
+    s.hist_msg = f"Deleted {n} attempt{'s' if n != 1 else ''}."
+
+def clear_panel(att):
+    st.divider()
+    with st.container(border=True, key="clearbox"):
+        st.markdown("#### 🗑 Clear history")
+        st.caption("Deletes saved attempts, scores and progress from history.db. Your exam files are not touched.")
+        scope = st.selectbox("What to clear", ["Everything (all attempts and scores)"] + [f"Only exam: {c}" for c in sorted(att.code.unique())],
+                             key="clear_scope")
+        sure = st.checkbox("I understand this cannot be undone", key="clear_sure")
+        st.button("Delete selected history", disabled=not sure, key="clear_btn", on_click=do_clear, args=(scope,))
+
 def progress():
+    if s.get("hist_msg"): st.success(s.pop("hist_msg"))
     with conn() as c:
         att = pd.read_sql("SELECT * FROM attempts ORDER BY id", c)
     if att.empty:
         st.info("No attempts yet. Finish a test and it will appear here."); return
+    _progress(att)
+    clear_panel(att)
+
+def _progress(att):
     real = att[att.code != "PRACTICE"].copy()
     if not real.empty:
         real["Score %"] = (100 * real.score / real.maxscore).round(1)
@@ -296,7 +320,7 @@ def open_exam(code, neg):
 
 def upload_panel(neg):
     """Pick exam .json files from your computer: start them directly and/or save them into exams/."""
-    st.markdown("<style>[data-testid='stFileUploaderDropzone']{border:2px dashed #818cf8;background:#eef2ff;border-radius:14px}</style>", unsafe_allow_html=True)
+    st.markdown("<style>.st-key-clear_btn button:not(:disabled){background:#dc2626;color:#fff;border:none}[data-testid='stFileUploaderDropzone']{border:2px dashed #818cf8;background:#eef2ff;border-radius:14px}</style>", unsafe_allow_html=True)
     with st.container(border=True, key="uploadbox"):
         st.markdown("#### 📤 Upload an exam file")
         if s.get("flash"): st.success(s.pop("flash"))
