@@ -1,9 +1,10 @@
 """RRB ALP CBT-1 mock test. Run: streamlit run app.py"""
-import html, json, math, random, re, sqlite3, time
+import base64, html, json, math, uuid, random, re, sqlite3, time
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 ROOT = Path(__file__).parent
 EXAMS, DB = ROOT / "exams", ROOT / "history.db"
@@ -110,6 +111,7 @@ def conn():
     c = sqlite3.connect(DB)
     c.execute("CREATE TABLE IF NOT EXISTS attempts(id INTEGER PRIMARY KEY, code TEXT, ts TEXT, score REAL, maxscore REAL,"
               " correct INT, wrong INT, skipped INT, accuracy REAL, total_time REAL, neg REAL, detail TEXT)")
+    c.execute("CREATE TABLE IF NOT EXISTS progress2(sid TEXT PRIMARY KEY, saved REAL, data TEXT)")
     try: c.execute("ALTER TABLE attempts ADD COLUMN name TEXT")
     except sqlite3.OperationalError: pass
     return c
@@ -187,9 +189,41 @@ def flush():
 def goto(i):
     flush(); s.cur = i; s.visited.add(i)
 
+def sid():
+    """Private id kept in the page URL (?sid=...). A refresh keeps it; other visitors get their own."""
+    if "sid" not in s:
+        q = st.query_params.get("sid", "")
+        if not re.fullmatch(r"[A-Za-z0-9]{8,32}", q or ""):
+            q = uuid.uuid4().hex[:16]; st.query_params["sid"] = q
+        s.sid = q
+    return s.sid
+
+def inprog_save():
+    qt = list(s.qtime); qt[s.cur] += time.time() - s.last
+    data = dict(exam=s.exam, answers=s.answers, marked=sorted(s.marked), visited=sorted(s.visited),
+                qtime=qt, cur=s.cur, start=s.start, name=s.name)
+    with conn() as c:
+        c.execute("INSERT OR REPLACE INTO progress2(sid, saved, data) VALUES(?, ?, ?)", (sid(), time.time(), json.dumps(data)))
+
+def inprog_load():
+    with conn() as c:
+        r = c.execute("SELECT data FROM progress2 WHERE sid = ?", (sid(),)).fetchone()
+    return json.loads(r[0]) if r else None
+
+def inprog_clear():
+    with conn() as c: c.execute("DELETE FROM progress2 WHERE sid = ?", (sid(),))
+
 def submit():
     if not s.submitted:
-        flush(); s.submitted = True; s.end = time.time()
+        flush(); s.submitted = True; s.end = time.time(); inprog_clear()
+
+def resume(d):
+    s.update(exam=d["exam"], answers={int(k): v for k, v in d["answers"].items()}, marked=set(d["marked"]),
+             visited=set(d["visited"]), qtime=d["qtime"], cur=d["cur"], last=time.time(), start=d["start"],
+             submitted=False, end=None, saved=False, confirm=False, name=d["name"])
+    s.pop("pending", None)
+    if time.time() - d["start"] >= d["exam"]["duration_minutes"] * 60:
+        submit()          # time ran out while the page was closed
 
 def save_answer(i):
     v = s.get(f"opt{i}")
@@ -270,8 +304,81 @@ st.markdown("""<style>
 .inst li{margin-bottom:.45rem;line-height:1.55}
 </style>""", unsafe_allow_html=True)
 
+FS_HTML = """<style>body{margin:0}button{width:100%;height:38px;border:none;border-radius:999px;cursor:pointer;font:600 14px Poppins,Segoe UI,sans-serif;
+color:#fff;background:linear-gradient(90deg,#4338ca,#0ea5e9);box-shadow:0 3px 10px rgba(67,56,202,.3)}button:hover{filter:brightness(1.1)}</style>
+<button id="b">⛶ Full screen</button>
+<script>
+const d = window.parent.document, b = document.getElementById('b');
+const upd = () => { b.textContent = d.fullscreenElement ? '🗗 Exit full screen' : '⛶ Full screen'; };
+b.onclick = () => { try { d.fullscreenElement ? d.exitFullscreen() : d.documentElement.requestFullscreen(); }
+                    catch (e) { b.textContent = 'Press F11 for full screen'; } };
+d.addEventListener('fullscreenchange', upd); upd();
+window.addEventListener('pagehide', () => d.removeEventListener('fullscreenchange', upd));
+</script>"""
+
+def fs_button():
+    if hasattr(st, "iframe"): st.iframe(FS_HTML, height=46)      # newer Streamlit
+    else: components.html(FS_HTML, height=46)                    # older Streamlit
+
+def _wheels(xs): return "".join(f'<circle cx="{x}" cy="72" r="6" fill="#0f172a" stroke="#94a3b8" stroke-width="1.5"/>' for x in xs)
+def _panto(x): return f'<path d="M{x} 30 L{x+12} 12 L{x+24} 30 M{x+4} 11 H{x+20}" stroke="#e2e8f0" stroke-width="2.5" fill="none"/>'
+def _svg_doc(body, label):
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 100" width="390" height="100">'
+            '<line x1="0" y1="10" x2="390" y2="10" stroke="#94a3b8" stroke-width="1.5"/>'
+            f'<rect x="0" y="78" width="390" height="3" fill="#64748b"/>{body}'
+            f'<text x="150" y="97" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="11" font-weight="600" fill="#c7d2fe">{label}</text></svg>')
+def _svg_wag12b():      # electric freight locomotive: boxy twin-cab body, two pantographs
+    vents = "".join(f'<rect x="{x}" y="37" width="7" height="12" rx="1" fill="#1e3a8a"/>' for x in range(70, 240, 16))
+    return _svg_doc('<rect x="12" y="30" width="276" height="42" rx="7" fill="#1d4ed8"/><rect x="12" y="54" width="276" height="7" fill="#f59e0b"/>'
+                    '<rect x="20" y="36" width="24" height="12" rx="3" fill="#bae6fd"/><rect x="256" y="36" width="24" height="12" rx="3" fill="#bae6fd"/>'
+                    + vents + _panto(95) + _panto(190) + _wheels([38, 62, 86, 214, 238, 262]), "WAG-12B")
+def _svg_wap9():        # streamlined high-speed passenger locomotive
+    vents = "".join(f'<rect x="{x}" y="38" width="6" height="11" rx="1" fill="#94a3b8"/>' for x in range(70, 190, 14))
+    return _svg_doc('<path d="M10 72 V38 Q10 30 20 30 H215 Q262 32 290 56 L294 72 Z" fill="#e2e8f0"/><rect x="10" y="56" width="279" height="7" fill="#2563eb"/>'
+                    '<path d="M228 35 Q258 37 276 52 H228 Z" fill="#0f172a"/><rect x="20" y="36" width="22" height="11" rx="3" fill="#38bdf8"/>'
+                    + vents + _panto(120) + _wheels([36, 60, 84, 196, 220, 244]), "WAP-9")
+def _svg_mmts():        # suburban electric multiple unit (Hyderabad MMTS style): three coaches
+    body = ""
+    for i in range(3):
+        x = 6 + i * 96
+        body += f'<rect x="{x}" y="34" width="92" height="38" rx="6" fill="#facc15"/><rect x="{x}" y="56" width="92" height="6" fill="#1d4ed8"/>'
+        body += "".join(f'<rect x="{x+8+j*20}" y="40" width="14" height="11" rx="2" fill="#1e3a8a"/>' for j in range(4)) + _wheels([x + 16, x + 76])
+    return _svg_doc(body + _panto(6 + 96 + 34), "MMTS (EMU)")
+def _uri(svg): return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+
+@st.cache_data(show_spinner=False)
+def _photo_strip(sig):
+    out = []
+    for name, _ in sig:
+        f = ROOT / "assets" / name
+        mime = {"jpg": "jpeg", "jpeg": "jpeg", "png": "png", "webp": "webp"}[f.suffix.lower().lstrip(".")]
+        cap = html.escape(f.stem.replace("_", " ").replace("-", " ").upper())
+        out.append(f"<figure><img src='data:image/{mime};base64,{base64.b64encode(f.read_bytes()).decode()}'/><figcaption>{cap}</figcaption></figure>")
+    return "<div class='photos'>" + "".join(out) + "</div>"
+
+def train_strip():
+    """Your own photos (assets/*.jpg|png|webp) if present, otherwise animated train illustrations."""
+    adir = ROOT / "assets"
+    pics = sorted(f for f in adir.glob("*") if f.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")) if adir.is_dir() else []
+    if pics: return _photo_strip(tuple((f.name, f.stat().st_mtime) for f in pics[:5]))
+    imgs = "".join(f"<img class='tr' src='{_uri(f())}'/>" for f in (_svg_wag12b, _svg_wap9, _svg_mmts)) * 4
+    return f"<div class='rail'><div class='mv'>{imgs}</div></div>"
+
+st.markdown("""<style>
+.hero{padding-bottom:0 !important}.hero:after{content:none !important}
+.rail{overflow:hidden;height:104px;margin:14px -40px 0}
+.mv{display:flex;width:max-content;animation:drive 45s linear infinite}.tr{display:block;flex:none;height:100px;width:390px}
+@keyframes drive{from{transform:translateX(-25%)}to{transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){.mv{animation:none}}
+.photos{display:flex;gap:14px;overflow-x:auto;margin:16px 0 22px;padding-bottom:6px}
+.photos figure{margin:0;flex:none}.photos img{height:130px;border-radius:12px;display:block;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+.photos figcaption{color:#c7d2fe;font-size:.75rem;font-weight:600;margin-top:4px;text-align:center}
+</style>""", unsafe_allow_html=True)
+
 def hero(title, sub):
-    st.markdown(f"<div class='hero'><h1>{title}</h1><p>{sub}</p></div>", unsafe_allow_html=True)
+    _, c = st.columns([9, 1.2])
+    with c: fs_button()
+    st.markdown(f"<div class='hero'><h1>{title}</h1><p>{sub}</p>{train_strip()}</div>", unsafe_allow_html=True)
 
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -289,7 +396,8 @@ st.markdown("""<style>
 .stTabs [data-baseweb="tab-list"]{gap:8px;border:none}
 .stTabs [data-baseweb="tab"]{background:#fff;border-radius:999px;padding:8px 20px;box-shadow:0 1px 4px rgba(15,23,42,.08)}
 .stTabs [aria-selected="true"]{background:#4338ca}.stTabs [aria-selected="true"] p{color:#fff !important}
-.stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none}
+.stTabs [data-baseweb="tab-highlight"],.stTabs [data-baseweb="tab-border"]{display:none !important;height:0 !important;background:transparent !important}
+.stTabs button[data-baseweb="tab"]{padding:10px 24px !important;height:auto !important;margin-right:6px}
 [data-testid="stVerticalBlockBorderWrapper"]{transition:.2s}
 [data-testid="stVerticalBlockBorderWrapper"]:hover{box-shadow:0 12px 28px rgba(67,56,202,.16)}
 .tag{background:linear-gradient(90deg,#4338ca,#0ea5e9);color:#fff;border-radius:8px;padding:2px 10px;font-size:.72rem;font-weight:700;letter-spacing:.6px}
@@ -351,12 +459,26 @@ def upload_panel(neg):
                 s.pending = ex; st.rerun()
 
 # ---------------- instructions + candidate name ----------------
+def section_panel(ex):
+    """Optional section-wise test: choose which sections to attempt; time is scaled to match."""
+    secs = list(dict.fromkeys(q["section"] for q in ex["questions"]))
+    if len(secs) < 2: return ex
+    with st.container(border=True, key="setupbox"):
+        st.markdown("#### 🧩 Sections to attempt")
+        pick = st.multiselect("Keep all selected for the full paper, or choose specific sections for a section-wise test",
+                              secs, default=secs, key=f"cfg_sec_{ex['code']}")
+        if not pick: st.warning("Select at least one section. Using all sections."); pick = secs
+        qs = [q for q in ex["questions"] if q["section"] in pick]
+        mins = max(1, round(ex["duration_minutes"] * len(qs) / len(ex["questions"])))
+        st.caption(f"{len(qs)} questions · {mins} minutes")
+    return dict(ex, questions=qs, duration_minutes=mins)
+
 def instructions():
-    ex = s.pending; Qs = ex["questions"]; n = len(Qs); mins = ex["duration_minutes"]
+    hero("📋 Instructions", html.escape(s.pending["title"]))
+    ex = section_panel(s.pending); Qs = ex["questions"]; n = len(Qs); mins = ex["duration_minutes"]
     neg, mpq = ex.get("negative_marking", 0.0), ex.get("marks_per_question", 1)
     negtxt = (f"<b>{'1/3' if abs(neg-NEG_RRB)<.01 else f'{neg:.2f}'} mark</b> is deducted for every wrong answer."
               if neg else "There is <b>no negative marking</b> in this attempt.")
-    hero("📋 Instructions", html.escape(ex["title"]))
     L, R = st.columns([2, 1.1], gap="large")
     with L, st.container(border=True):
         st.markdown("### Please read carefully")
@@ -396,6 +518,16 @@ if "exam" not in s and "pending" in s:
 # ---------------- entry screen ----------------
 if "exam" not in s:
     hero("🚆 RRB ALP CBT-1 – Daily Mock Test", "Timed mock tests with detailed analysis, progress tracking and smart practice")
+    d = inprog_load()
+    if d:
+        left = d["exam"]["duration_minutes"] * 60 - (time.time() - d["start"])
+        with st.container(border=True, key="resumebox"):
+            c1, c2, c3 = st.columns([4, 1, 1], vertical_alignment="center")
+            c1.markdown(f"#### ⏸ Unfinished test: `{html.escape(d['exam']['code'])}`")
+            c1.markdown(f"👤 {html.escape(d['name'])} · answered **{len(d['answers'])}/{len(d['exam']['questions'])}** · "
+                        + ("⏰ **time is up**, it will be submitted when you resume" if left <= 0 else f"⏱ **{int(left)//60:02d}:{int(left)%60:02d}** left (the clock kept running)"))
+            if c2.button("▶ Resume", type="primary", key="resume_btn", width="stretch"): resume(d); st.rerun()
+            if c3.button("Discard", key="discard_btn", width="stretch"): inprog_clear(); st.rerun()
     t1, t2 = st.tabs(["📝 Take exam", "📈 Progress & practice"])
     with t1:
         avail = list_exams()
@@ -496,7 +628,17 @@ if s.submitted:
         d2.info("For PDF: pip install fpdf2")
 
     st.subheader("Question-wise analysis")
-    for i, d in enumerate(det):
+    redo = [d for d in det if d["Status"] != "Correct"]
+    if redo and st.button(f"🎯 Retry my {len(redo)} wrong / skipped questions", type="primary"):
+        qs = [{k: d[k] for k in ("question", "options", "answer", "section", "topic", "difficulty", "explanation")} for d in redo]
+        start(dict(code="PRACTICE", title="Retry: wrong & skipped questions", duration_minutes=max(5, math.ceil(len(qs) * 0.8)),
+                   marks_per_question=1, negative_marking=0.0, questions=qs), s.name); st.rerun()
+    flt = st.radio("Show", ["All", "Wrong", "Skipped", "Slow (over benchmark)", "Marked for review"], horizontal=True)
+    keep = lambda i, d: (flt == "All" or (flt == "Wrong" and d["Status"] == "Wrong") or (flt == "Skipped" and d["Status"] == "Skipped")
+                         or (flt.startswith("Slow") and d["time"] > target) or (flt.startswith("Marked") and i in s.marked))
+    shown = [(i, d) for i, d in enumerate(det) if keep(i, d)]
+    st.caption(f"{len(shown)} question(s) shown")
+    for i, d in shown:
         icon = {"Correct": "✅", "Wrong": "❌", "Skipped": "⏭️"}[d["Status"]]
         with st.expander(f"{icon} Q{i+1} · {d['topic']} · {d['difficulty']} · {d['time']}s · {d['Category']}"):
             st.write(d["question"])
@@ -508,6 +650,7 @@ if s.submitted:
     st.stop()
 
 # ---------------- exam screen ----------------
+inprog_save()      # every interaction is saved, so a refresh can be resumed
 @st.fragment(run_every=1)
 def timers():
     left = DUR - (time.time() - s.start)
@@ -517,11 +660,12 @@ def timers():
     st.markdown(f"""<div style="text-align:right"><span class="pill {'low' if left < 300 else ''}"><b>{fmt(left)}</b><span>TIME LEFT</span></span>
       <span class="pill"><b>{int(qt)}s</b><span>THIS QUESTION</span></span></div>""", unsafe_allow_html=True)
 
-top = st.columns([3, 2, 1.1], vertical_alignment="center")
+top = st.columns([3, 2, 0.9, 1.1], vertical_alignment="center")
 top[0].markdown(f"""<div class="topbar" style="margin:0"><div><div class="t">🚆 {html.escape(exam.get('title', 'ALP CBT-1 Mock'))}</div>
   <div class="s">👤 {html.escape(s.name)} · {N} questions · {exam['duration_minutes']} min · negative marking {'1/3' if abs(NEG-NEG_RRB)<.01 else ('off' if not NEG else f'{NEG:.2f}')}</div></div></div>""", unsafe_allow_html=True)
 with top[1]: timers()
-if top[2].button("✔ Submit test", key="submit_top", width="stretch"):
+with top[2]: fs_button()
+if top[3].button("✔ Submit test", key="submit_top", width="stretch"):
     s.confirm = True
 
 done = len(s.answers)
