@@ -493,58 +493,6 @@ div[role="radiogroup"] label:has(input:checked){border-color:#c8962e !important;
 st.markdown(THEME_CSS.replace("__CLOUDS__", _cloud_uri()).replace("__FAR__", _hill_uri("#5d7ea6", 80, 46))
             .replace("__NEAR__", _hill_uri("#2f5a45", 96, 40)), unsafe_allow_html=True)
 
-def _mini_train():
-    return _uri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 22" width="52" height="22"><rect x="2" y="3" width="40" height="13" rx="3" fill="#1e4fbf"/>'
-                '<path d="M38 3 H44 Q50 5 51 16 H38Z" fill="#f1f5f9"/><rect x="8" y="6" width="9" height="5" rx="1" fill="#bae6fd"/><rect x="22" y="6" width="9" height="5" rx="1" fill="#bae6fd"/>'
-                '<rect x="2" y="12" width="48" height="2.5" fill="#f59e0b"/>' + "".join(f'<circle cx="{x}" cy="18" r="3" fill="#111827"/>' for x in (12, 22, 34, 44)) + '</svg>')
-
-STATION_CSS = """<style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-/* departure-board stat tiles */
-.stats div{background:#0f1b2d !important;border:2px solid #c8962e !important;border-radius:10px !important;color:#9fb3c8 !important;
-  text-transform:uppercase;letter-spacing:.14em;font-size:.68rem !important;box-shadow:inset 0 0 0 3px #0f1b2d,inset 0 0 0 4px rgba(200,150,46,.45)}
-.stats span{-webkit-text-fill-color:#ffb703 !important;color:#ffb703 !important;font-family:'Share Tech Mono',monospace !important;font-size:2rem !important;
-  letter-spacing:2px;text-shadow:0 0 10px rgba(255,183,3,.6)}
-/* signboard tabs */
-.stTabs [data-baseweb="tab-list"]{gap:6px}
-.stTabs button[data-baseweb="tab"]{border-radius:6px 6px 0 0 !important;background:#0b2a4a !important;border:none !important;padding:10px 22px !important;box-shadow:none}
-.stTabs button[data-baseweb="tab"] p{color:#e9dfc7 !important;font-weight:700;letter-spacing:.4px}
-.stTabs button[aria-selected="true"]{background:#c8962e !important;box-shadow:inset 0 -4px 0 #ffd77a !important}
-.stTabs button[aria-selected="true"] p{color:#0b2a4a !important}
-.stApp h3{border-bottom:2px solid #ecdcb8;padding-bottom:.25rem}
-/* buttons: enamel-plate look (zero-specificity base so keyed colours still win) */
-:where(.stApp .stButton) > button:not([kind="primary"]){border:2px solid #0b2a4a;border-radius:8px;font-weight:700;letter-spacing:.3px;background:#fffaf0;color:#0b2a4a}
-:where(.stApp .stButton) > button:not([kind="primary"]):hover{box-shadow:0 4px 10px rgba(11,42,74,.25)}
-/* ticket cards */
-[class*="st-key-tk_"]{background:linear-gradient(180deg,#fff9e6,#fff3d1) !important;border:2px solid #c8962e !important;border-radius:14px !important}
-.tk-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.tk-t{font:700 .66rem 'Lora',Georgia,serif;letter-spacing:.18em;color:#7a4b0b}
-.stamp{margin-left:auto;font:700 .66rem 'Lora',Georgia,serif;border:2px solid;border-radius:6px;padding:1px 8px;transform:rotate(-6deg);letter-spacing:.1em}
-.stamp.new{color:#2e7d32;border-color:#2e7d32}.stamp.done{color:#b45309;border-color:#b45309}
-.tk-row{display:flex;margin:10px 0 4px;border:1px solid #ecdcb8;border-radius:8px;overflow:hidden;background:#fffdf5}
-.tk-row div{flex:1;text-align:center;padding:6px 4px;border-right:1px dashed #d9c08a}.tk-row div:last-child{border:none}
-.tk-row small{display:block;font-size:.58rem;letter-spacing:.14em;color:#8a6a3a}.tk-row b{font:400 1.3rem 'Share Tech Mono',monospace;color:#0b2a4a}
-.tk-perf{position:relative;border-top:2px dashed #c8962e;margin:14px -18px 12px}
-.tk-perf:before,.tk-perf:after{content:"";position:absolute;top:-11px;width:20px;height:20px;border-radius:50%;background:#fbf4e2}
-.tk-perf:before{left:-12px}.tk-perf:after{right:-12px}
-/* notice-board instructions */
-.inst{list-style:none;padding-left:0;counter-reset:i}.inst li{counter-increment:i;position:relative;padding-left:46px;min-height:32px}
-.inst li:before{content:counter(i);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:50%;background:#0b2a4a;color:#ffd77a;
-  font:700 .95rem 'Playfair Display',serif;display:grid;place-items:center;box-shadow:0 0 0 3px #ecdcb8}
-/* departure-board exam header */
-.topbar{background:#0f1b2d !important;border:2px solid #c8962e;border-radius:10px !important;
-  box-shadow:inset 0 0 0 3px #0f1b2d,inset 0 0 0 4px rgba(200,150,46,.45),0 6px 16px rgba(0,0,0,.3) !important}
-.topbar .t{font-family:'Playfair Display',serif;color:#ffe9bf}.topbar .s{color:#9fb3c8}
-.pill{background:#060b14 !important;border:2px solid #3a4658;border-radius:8px}
-.pill b{font-family:'Share Tech Mono',monospace;color:#ffb703;text-shadow:0 0 9px rgba(255,183,3,.7);letter-spacing:2px}
-.pill span{color:#8da2b8}.pill.low{background:#2a0a0a !important;border-color:#ff4d3d}
-.pill.low b{color:#ff4d3d;text-shadow:0 0 10px rgba(255,77,61,.85)}
-/* ruled exam paper */
-.st-key-qcard{background:repeating-linear-gradient(180deg,transparent 0 33px,rgba(11,42,74,.07) 33px 34px),#fffef9 !important}
-.qmeta span:first-child{background:#0b2a4a !important;color:#ffd77a !important}
-</style>"""
-st.markdown(STATION_CSS, unsafe_allow_html=True)
-
 def hero(title, sub):
     _, c = st.columns([9, 1.2])
     with c: fs_button()
@@ -719,15 +667,13 @@ if "exam" not in s:
         rows = avail.to_dict("records")
         for r0 in range(0, len(rows), 3):
             for col, r in zip(st.columns(3), rows[r0:r0 + 3]):
-                kid = re.sub(r"\W", "_", r["Code"])
-                with col, st.container(border=True, key=f"tk_{kid}"):
+                with col, st.container(border=True):
                     pre, date = card_meta(r["Code"])
-                    n_at = int(r["Attempts"]); best = f"{r['Best %']:.0f}%" if n_at and pd.notna(r["Best %"]) else "—"
-                    stamp = f"<span class='stamp done'>ATTEMPTED x{n_at}</span>" if n_at else "<span class='stamp new'>NEW</span>"
-                    st.markdown(f"<div class='tk-h'><span class='tag'>{html.escape(pre)}</span><span class='tk-t'>MOCK TEST TICKET</span>{stamp}</div>"
-                                f"<div class='ecode'>{html.escape(r['Code'])}</div><div class='edate'>Date of test · {date}</div>"
-                                f"<div class='tk-row'><div><small>QUESTIONS</small><b>{r['Questions']}</b></div><div><small>MINUTES</small><b>{r['Minutes']}</b></div>"
-                                f"<div><small>BEST</small><b>{best}</b></div></div><div class='tk-perf'></div>", unsafe_allow_html=True)
+                    stat = (f"<span class='estat done'>✔ {r['Attempts']} attempt{'s' if r['Attempts'] != 1 else ''} · best {r['Best %']:.0f}%</span>"
+                            if r["Attempts"] and pd.notna(r["Best %"]) else "<span class='estat new'>● New</span>")
+                    st.markdown(f"<span class='tag'>{html.escape(pre)}</span><div class='ecode'>{html.escape(r['Code'])}</div>"
+                                f"<div class='edate'>{date}</div><div class='emeta'><b>{r['Questions']}</b> questions<i></i><b>{r['Minutes']}</b> min</div>{stat}",
+                                unsafe_allow_html=True)
                     if st.button("▶ Start", key=f"card_{r['Code']}", type="primary", width="stretch"):
                         open_exam(r["Code"], neg)
     with t2: progress()
@@ -843,7 +789,7 @@ if top[3].button("✔ Submit test", key="submit_top", width="stretch"):
     s.confirm = True
 
 done = len(s.answers)
-st.markdown(f"<div class='prog'><div style='width:{100*done/N:.0f}%'></div><img src='{_mini_train()}' style='left:{100*done/N:.0f}%'/></div>"
+st.markdown(f"<div class='prog'><div style='width:{100*done/N:.0f}%'></div></div>"
             f"<div class='progtxt'>{done} of {N} answered · {len(s.marked)} marked for review</div>", unsafe_allow_html=True)
 if s.get("confirm"):
     with st.container(border=True, key="confirmbox"):
@@ -861,9 +807,8 @@ def pal_css():   # colour each palette button by state (needs Streamlit >= 1.39)
 .st-key-nextq button,.st-key-prevq button{min-height:3rem;font-size:1rem}
 .st-key-qcard{border-left:6px solid #c8962e !important}
 .st-key-confirmbox{border:2px solid #f97316 !important;background:#fff7ed !important}
-.prog{position:relative;height:12px;margin-top:20px;border-radius:6px;background:repeating-linear-gradient(90deg,#8a6a4a 0 7px,transparent 7px 12px),#d8cfbe}
-.prog div{height:100%;border-radius:6px;background:linear-gradient(90deg,#2e7d32,#7cb342);transition:width .4s}
-.prog img{position:absolute;top:-17px;width:52px;height:22px;transform:translateX(-85%);transition:left .4s}
+.prog{height:10px;border-radius:99px;background:#e2e8f0;overflow:hidden}
+.prog div{height:100%;background:linear-gradient(90deg,#16a34a,#0ea5e9);transition:width .4s}
 .progtxt{font-size:.8rem;color:#64748b;margin:4px 0 14px}
 [data-testid="stColumn"]:has(.st-key-palbox){position:sticky;top:10px;align-self:flex-start}
 .cnt{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 12px}
@@ -873,7 +818,7 @@ def pal_css():   # colour each palette button by state (needs Streamlit >= 1.39)
         ans, mk = k in s.answers, k in s.marked
         bg, fg = ("#7c3aed", "#fff") if mk else ("#16a34a", "#fff") if ans else ("#fecaca", "#7f1d1d") if k in s.visited else ("#e2e8f0", "#334155")
         ring = "outline:3px solid #0f172a;outline-offset:1px;" if k == s.cur else ""
-        r.append(f".st-key-p{k} button{{background:{bg};color:{fg};border:none;min-height:2.4rem;width:100%;border-radius:7px;font-weight:700;box-shadow:inset 0 0 0 2px rgba(255,255,255,.55);{ring}}}"
+        r.append(f".st-key-p{k} button{{background:{bg};color:{fg};border:none;min-height:2.4rem;width:100%;{ring}}}"
                  f".st-key-p{k} button:hover{{color:{fg};filter:brightness(1.1)}}")
     return "".join(r) + "</style>"
 st.markdown(pal_css(), unsafe_allow_html=True)
