@@ -320,31 +320,75 @@ def fs_button():
     if hasattr(st, "iframe"): st.iframe(FS_HTML, height=46)      # newer Streamlit
     else: components.html(FS_HTML, height=46)                    # older Streamlit
 
-def _wheels(xs): return "".join(f'<circle cx="{x}" cy="72" r="6" fill="#0f172a" stroke="#94a3b8" stroke-width="1.5"/>' for x in xs)
-def _panto(x): return f'<path d="M{x} 30 L{x+12} 12 L{x+24} 30 M{x+4} 11 H{x+20}" stroke="#e2e8f0" stroke-width="2.5" fill="none"/>'
 def _svg_doc(body, label):
-    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 100" width="390" height="100">'
-            '<line x1="0" y1="10" x2="390" y2="10" stroke="#94a3b8" stroke-width="1.5"/>'
-            f'<rect x="0" y="78" width="390" height="3" fill="#64748b"/>{body}'
-            f'<text x="150" y="97" text-anchor="middle" font-family="Poppins,Arial,sans-serif" font-size="11" font-weight="600" fill="#c7d2fe">{label}</text></svg>')
-def _svg_wag12b():      # electric freight locomotive: boxy twin-cab body, two pantographs
-    vents = "".join(f'<rect x="{x}" y="37" width="7" height="12" rx="1" fill="#1e3a8a"/>' for x in range(70, 240, 16))
-    return _svg_doc('<rect x="12" y="30" width="276" height="42" rx="7" fill="#1d4ed8"/><rect x="12" y="54" width="276" height="7" fill="#f59e0b"/>'
-                    '<rect x="20" y="36" width="24" height="12" rx="3" fill="#bae6fd"/><rect x="256" y="36" width="24" height="12" rx="3" fill="#bae6fd"/>'
-                    + vents + _panto(95) + _panto(190) + _wheels([38, 62, 86, 214, 238, 262]), "WAG-12B")
+    return ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 112" width="390" height="112"><defs>'
+            '<pattern id="sl" width="13" height="6" patternUnits="userSpaceOnUse"><rect width="8" height="6" fill="#4a382b"/></pattern>'
+            '<linearGradient id="glass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e0f2fe"/><stop offset="1" stop-color="#6cb8e6"/></linearGradient>'
+            '<linearGradient id="shade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".5"/>'
+            '<stop offset=".45" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".30"/></linearGradient></defs>'
+            '<rect x="382" y="5" width="4" height="84" fill="#7b8794"/><rect x="368" y="7" width="30" height="3" fill="#7b8794"/>'
+            '<line x1="0" y1="9" x2="390" y2="9" stroke="#cbd5e1" stroke-width="1.6"/>'
+            '<rect x="0" y="86" width="390" height="14" fill="#7a6e62"/><rect x="0" y="88" width="390" height="6" fill="url(#sl)"/>'
+            '<rect x="0" y="85.5" width="390" height="2.4" fill="#d5dbe3"/><rect x="0" y="87.9" width="390" height="1" fill="#59606b"/>'
+            '<rect x="0" y="100" width="390" height="12" fill="#2e2620"/>' + body +
+            f'<text x="195" y="109.5" text-anchor="middle" font-family="Lora,Georgia,serif" font-size="10" font-weight="700" fill="#f3d9a0">{label}</text></svg>')
+def _bogie(x, axles=3):
+    out = f'<rect x="{x-6}" y="75" width="{axles*19+2}" height="8" rx="3" fill="#1f2937"/>'
+    for i in range(axles):
+        cx = x + 6 + i * 19
+        out += f'<circle cx="{cx}" cy="79" r="7.5" fill="#111827"/><circle cx="{cx}" cy="79" r="5" fill="#374151"/><circle cx="{cx}" cy="79" r="2" fill="#9ca3af"/>'
+    return out
+def _pan(x):
+    return (f'<rect x="{x}" y="30" width="26" height="3.5" fill="#64748b"/>'
+            f'<path d="M{x+3} 30 L{x+14} 15 L{x+23} 30 M{x+9} 23 L{x+20} 23 M{x+14} 15 V11" stroke="#e5e7eb" stroke-width="2.2" fill="none" stroke-linejoin="round"/>'
+            f'<rect x="{x+3}" y="8" width="22" height="3" rx="1.5" fill="#f1f5f9"/>')
+def _louvres(x0, x1, step, y, h, dark, light):
+    return "".join(f'<rect x="{x}" y="{y}" width="9" height="{h}" rx="1.5" fill="{dark}"/>'
+                   + "".join(f'<rect x="{x+1}" y="{y+2+k*4}" width="7" height="1.2" fill="{light}"/>' for k in range((h - 3) // 4))
+                   for x in range(x0, x1, step))
+def _svg_wag12b():      # heavy electric freight locomotive: twin cabs, two pantographs, two 3-axle bogies
+    return _svg_doc('<path d="M10 76 V40 Q10 33 18 33 H272 Q280 33 280 40 V76 Z" fill="#1e4fbf"/>'
+                    '<rect x="10" y="60" width="270" height="6" fill="#f59e0b"/><rect x="10" y="67" width="270" height="2" fill="#fff" opacity=".85"/>'
+                    '<rect x="128" y="27" width="22" height="7" rx="1" fill="#475569"/>'
+                    + _louvres(62, 250, 15, 41, 19, "#12306b", "#4f78c9") +
+                    '<rect x="20" y="38" width="30" height="15" rx="3" fill="url(#glass)" stroke="#0f2a63" stroke-width="2"/>'
+                    '<rect x="242" y="38" width="30" height="15" rx="3" fill="url(#glass)" stroke="#0f2a63" stroke-width="2"/>'
+                    '<path d="M10 76 V40 Q10 33 18 33 H272 Q280 33 280 40 V76 Z" fill="url(#shade)"/>'
+                    '<rect x="10" y="74" width="270" height="3" fill="#1f2937"/>'
+                    '<circle cx="14" cy="66" r="3" fill="#fde68a"/><circle cx="276" cy="66" r="3" fill="#fde68a"/>'
+                    '<rect x="3" y="70" width="8" height="5" fill="#9ca3af"/><rect x="279" y="70" width="8" height="5" fill="#9ca3af"/>'
+                    + _pan(86) + _pan(170) + _bogie(36) + _bogie(204), "WAG-12B · Freight")
 def _svg_wap9():        # streamlined high-speed passenger locomotive
-    vents = "".join(f'<rect x="{x}" y="38" width="6" height="11" rx="1" fill="#94a3b8"/>' for x in range(70, 190, 14))
-    return _svg_doc('<path d="M10 72 V38 Q10 30 20 30 H215 Q262 32 290 56 L294 72 Z" fill="#e2e8f0"/><rect x="10" y="56" width="279" height="7" fill="#2563eb"/>'
-                    '<path d="M228 35 Q258 37 276 52 H228 Z" fill="#0f172a"/><rect x="20" y="36" width="22" height="11" rx="3" fill="#38bdf8"/>'
-                    + vents + _panto(120) + _wheels([36, 60, 84, 196, 220, 244]), "WAP-9")
-def _svg_mmts():        # suburban electric multiple unit (Hyderabad MMTS style): three coaches
+    body = "M10 76 V40 Q10 33 18 33 H206 Q252 34 286 60 L290 76 Z"
+    return _svg_doc(f'<path d="{body}" fill="#f1f5f9"/><path d="M10 58 H282 L288 66 H10 Z" fill="#1d4ed8"/><path d="M10 66 H288 L289 70 H10 Z" fill="#f59e0b"/>'
+                    + _louvres(62, 196, 13, 39, 17, "#94a3b8", "#e2e8f0") +
+                    '<path d="M222 38 Q254 40 272 56 H222 Z" fill="#0f172a"/><path d="M227 41 Q248 43 262 52" stroke="#64748b" stroke-width="1.5" fill="none"/>'
+                    '<rect x="20" y="38" width="26" height="14" rx="3" fill="url(#glass)" stroke="#475569" stroke-width="1.6"/>'
+                    f'<path d="{body}" fill="url(#shade)"/><rect x="10" y="74" width="278" height="3" fill="#1f2937"/>'
+                    '<circle cx="285" cy="66" r="3" fill="#fde68a"/><rect x="3" y="70" width="8" height="5" fill="#9ca3af"/>'
+                    + _pan(112) + _bogie(34) + _bogie(196), "WAP-9 · Express")
+def _svg_mmts():        # suburban electric multiple unit: three coaches with a driving cab at the front
     body = ""
     for i in range(3):
-        x = 6 + i * 96
-        body += f'<rect x="{x}" y="34" width="92" height="38" rx="6" fill="#facc15"/><rect x="{x}" y="56" width="92" height="6" fill="#1d4ed8"/>'
-        body += "".join(f'<rect x="{x+8+j*20}" y="40" width="14" height="11" rx="2" fill="#1e3a8a"/>' for j in range(4)) + _wheels([x + 16, x + 76])
-    return _svg_doc(body + _panto(6 + 96 + 34), "MMTS (EMU)")
+        x = 6 + i * 121; last = i == 2
+        shape = (f"M{x} 76 V39 Q{x} 34 {x+6} 34 H{x+108} Q{x+124} 36 {x+126} 58 V76 Z" if last
+                 else f"M{x} 76 V39 Q{x} 34 {x+6} 34 H{x+112} Q{x+118} 34 {x+118} 39 V76 Z")
+        body += f'<path d="{shape}" fill="#f5c518"/><rect x="{x}" y="60" width="{126 if last else 118}" height="7" fill="#1e40af"/>'
+        body += f'<rect x="{x+8}" y="29" width="{100 if not last else 90}" height="5" rx="2" fill="#cbd5e1"/><rect x="{x+30}" y="26" width="24" height="4" rx="1" fill="#94a3b8"/>'
+        body += "".join(f'<rect x="{x+9+j*20}" y="40" width="14" height="14" rx="2" fill="url(#glass)" stroke="#1e3a8a" stroke-width="1.8"/>' for j in range(5 if not last else 4))
+        if last: body += f'<path d="M{x+88} 38 H{x+108} Q{x+119} 39 {x+120} 52 H{x+88} Z" fill="#0f172a"/><circle cx="{x+122}" cy="64" r="3" fill="#fde68a"/>'
+        body += f'<path d="{shape}" fill="url(#shade)"/><rect x="{x}" y="74" width="{118}" height="3" fill="#1f2937"/>'
+        body += _bogie(x + 14, 2) + _bogie(x + 70, 2)
+        if not last: body += f'<rect x="{x+118}" y="62" width="9" height="5" fill="#1f2937"/>'
+    return _svg_doc(body + _pan(6 + 121 + 48), "MMTS · Suburban")
 def _uri(svg): return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+def _hill_uri(color, y0, amp):
+    d = f"M0 {y0} Q75 {y0-amp} 150 {y0-amp//3} T300 {y0-amp//2} T450 {y0-amp*2//3} T600 {y0} V140 H0Z"
+    return _uri(f'<svg xmlns="http://www.w3.org/2000/svg" width="600" height="140" viewBox="0 0 600 140"><path d="{d}" fill="{color}"/></svg>')
+def _cloud_uri():
+    g = "".join(f'<g fill="#fff" opacity=".85"><ellipse cx="{x}" cy="{y}" rx="{w}" ry="{w//3}"/><ellipse cx="{x+w//2}" cy="{y-8}" rx="{w//2}" ry="{w//4}"/>'
+                f'<ellipse cx="{x-w//2}" cy="{y-4}" rx="{w//2}" ry="{w//5}"/></g>' for x, y, w in [(120, 40, 60), (430, 72, 80), (720, 36, 55)])
+    return _uri(f'<svg xmlns="http://www.w3.org/2000/svg" width="900" height="120" viewBox="0 0 900 120">{g}</svg>')
 
 @st.cache_data(show_spinner=False)
 def _photo_strip(sig):
@@ -357,28 +401,78 @@ def _photo_strip(sig):
     return "<div class='photos'>" + "".join(out) + "</div>"
 
 def train_strip():
-    """Your own photos (assets/*.jpg|png|webp) if present, otherwise animated train illustrations."""
+    """Your own photos (assets/*.jpg|png|webp) if present, otherwise the animated train scene."""
     adir = ROOT / "assets"
     pics = sorted(f for f in adir.glob("*") if f.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")) if adir.is_dir() else []
     if pics: return _photo_strip(tuple((f.name, f.stat().st_mtime) for f in pics[:5]))
     imgs = "".join(f"<img class='tr' src='{_uri(f())}'/>" for f in (_svg_wag12b, _svg_wap9, _svg_mmts)) * 4
     return f"<div class='rail'><div class='mv'>{imgs}</div></div>"
 
-st.markdown("""<style>
-.hero{padding-bottom:0 !important}.hero:after{content:none !important}
-.rail{overflow:hidden;height:104px;margin:14px -40px 0}
-.mv{display:flex;width:max-content;animation:drive 45s linear infinite}.tr{display:block;flex:none;height:100px;width:390px}
+CAPTIONS = ["Every mock test brings you one step closer to the Loco Pilot’s cab.",
+            "Discipline today, a railway career tomorrow.",
+            "Practise with patience, succeed with confidence.",
+            "Your journey to the Indian Railways starts with the next question."]
+
+THEME_CSS = """<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+.stApp{background:repeating-linear-gradient(135deg,rgba(200,150,46,.05) 0 2px,transparent 2px 15px),
+  radial-gradient(900px 380px at 50% -80px,#ffe3a6 0,transparent 70%),linear-gradient(180deg,#fff1d3 0,#fffaf0 420px,#fbf5e8 100%) !important}
+.stApp::after{content:"";position:fixed;left:0;right:0;bottom:0;height:9px;z-index:99;pointer-events:none;border-top:2px solid #cfd6df;
+  background:repeating-linear-gradient(90deg,#5b4636 0 12px,#8a6a4a 12px 16px)}
+h1,h2,h3,.stApp h1,.stApp h2,.stApp h3,.ecode{font-family:'Playfair Display',Georgia,serif !important;color:#0b2a4a}
+.qtext{font-family:'Lora',Georgia,serif !important;color:#1c1917}
+.hero{position:relative;overflow:hidden;border-radius:22px;padding:34px 40px 0 !important;margin-bottom:22px;border:2px solid #c8962e;
+  animation:none !important;box-shadow:0 14px 34px rgba(11,42,74,.35);
+  background:radial-gradient(circle at 80% 90%,#fff6c9 0,rgba(255,220,130,.8) 7%,rgba(255,170,80,.35) 20%,transparent 42%),
+             linear-gradient(180deg,#0b2a4a 0%,#244f7d 34%,#e9a15f 76%,#ffd9a0 100%) !important}
+.hero:after{content:none !important}
+.clouds,.hills{position:absolute;left:0;right:0;pointer-events:none}
+.clouds{top:0;height:130px;background:url("__CLOUDS__") repeat-x 0 14px;background-size:900px 120px;opacity:.55;animation:drift1 170s linear infinite}
+.hills{height:140px}
+.hills.far{bottom:44px;background:url("__FAR__") repeat-x bottom;background-size:600px 140px;opacity:.7;animation:drift2 240s linear infinite}
+.hills.near{bottom:26px;background:url("__NEAR__") repeat-x bottom;background-size:600px 140px;animation:drift2 130s linear infinite}
+@keyframes drift1{to{background-position-x:-900px}}@keyframes drift2{to{background-position-x:-600px}}
+.htxt{position:relative;z-index:3}
+.hero h1{color:#fff9ea !important;font-size:2.5rem !important;text-shadow:0 2px 12px rgba(0,0,0,.5)}
+.hero p{color:#ffe9bf;font-size:1.05rem;text-shadow:0 1px 6px rgba(0,0,0,.5)}
+.caps{position:relative;height:28px;margin-top:8px}
+.caps span{position:absolute;left:0;top:0;opacity:0;color:#fff4d6;font:italic 1.08rem 'Lora',Georgia,serif;text-shadow:0 1px 6px rgba(0,0,0,.55);animation:cap 20s infinite}
+@keyframes cap{0%{opacity:0;transform:translateY(8px)}3%,22%{opacity:1;transform:none}27%,100%{opacity:0}}
+.rail{position:relative;z-index:4;overflow:hidden;height:112px;margin:10px -40px 0}
+.mv{display:flex;width:max-content;animation:drive 45s linear infinite}.tr{display:block;flex:none;height:112px;width:390px}
 @keyframes drive{from{transform:translateX(-25%)}to{transform:translateX(0)}}
-@media (prefers-reduced-motion:reduce){.mv{animation:none}}
-.photos{display:flex;gap:14px;overflow-x:auto;margin:16px 0 22px;padding-bottom:6px}
+@media (prefers-reduced-motion:reduce){.mv,.clouds,.hills{animation:none}}
+.photos{position:relative;z-index:4;display:flex;gap:14px;overflow-x:auto;margin:16px 0 22px;padding-bottom:6px}
 .photos figure{margin:0;flex:none}.photos img{height:130px;border-radius:12px;display:block;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-.photos figcaption{color:#c7d2fe;font-size:.75rem;font-weight:600;margin-top:4px;text-align:center}
-</style>""", unsafe_allow_html=True)
+.photos figcaption{color:#fff4d6;font-size:.75rem;font-weight:600;margin-top:4px;text-align:center}
+.topbar{background:linear-gradient(90deg,#0b2a4a,#14467a) !important;border-bottom:3px solid #c8962e;box-shadow:0 4px 14px rgba(11,42,74,.3) !important}
+.stats div{border:1px solid #ecdcb8;border-top:4px solid #c8962e;background:rgba(255,253,246,.9)}
+.stats span{background:none !important;-webkit-text-fill-color:#0b2a4a;color:#0b2a4a;font-family:'Playfair Display',serif}
+.tag{background:#c8962e !important;color:#fff !important}
+.stTabs [aria-selected="true"]{background:#0b2a4a !important}
+.stTabs button[data-baseweb="tab"]{border:1px solid #ecdcb8}
+[data-testid="stMetric"]{border-left:5px solid #c8962e !important;background:#fffdf8}
+[data-testid="stMetricValue"]{color:#0b2a4a !important;font-family:'Playfair Display',serif}
+[data-testid="stVerticalBlockBorderWrapper"]{background:#fffdf8 !important;border:1px solid #ecdcb8 !important}
+.qmeta span,.chip{background:#fdeccd !important;color:#7a4b0b !important}
+div[role="radiogroup"] label{background:#fffaf0;border-color:#ecdcb8}
+div[role="radiogroup"] label:hover{border-color:#c8962e;background:#fff3d6}
+div[role="radiogroup"] label:has(input:checked){border-color:#c8962e !important;background:#ffefc2 !important}
+.stButton>button:hover{border-color:#0b2a4a;color:#0b2a4a}
+.stButton>button[kind="primary"]{background:linear-gradient(90deg,#2e7d32,#1b5e20);border:none}
+.stButton>button[kind="primary"]:hover{color:#fff;filter:brightness(1.1)}
+[data-testid='stFileUploaderDropzone']{border:2px dashed #c8962e !important;background:#fff7e0 !important}
+</style>"""
+
+st.markdown(THEME_CSS.replace("__CLOUDS__", _cloud_uri()).replace("__FAR__", _hill_uri("#5d7ea6", 80, 46))
+            .replace("__NEAR__", _hill_uri("#2f5a45", 96, 40)), unsafe_allow_html=True)
 
 def hero(title, sub):
     _, c = st.columns([9, 1.2])
     with c: fs_button()
-    st.markdown(f"<div class='hero'><h1>{title}</h1><p>{sub}</p>{train_strip()}</div>", unsafe_allow_html=True)
+    caps = "".join(f"<span style='animation-delay:{i*5}s'>{html.escape(t)}</span>" for i, t in enumerate(CAPTIONS))
+    st.markdown(f"<div class='hero'><div class='clouds'></div><div class='hills far'></div><div class='hills near'></div>"
+                f"<div class='htxt'><h1>{title}</h1><p>{sub}</p><div class='caps'>{caps}</div></div>{train_strip()}</div>", unsafe_allow_html=True)
 
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -517,7 +611,7 @@ if "exam" not in s and "pending" in s:
 
 # ---------------- entry screen ----------------
 if "exam" not in s:
-    hero("🚆 RRB ALP CBT-1 – Daily Mock Test", "Timed mock tests with detailed analysis, progress tracking and smart practice")
+    hero("🚆 RRB ALP CBT-1 – Daily Mock Test", "Prepare. Practise. Progress. Your journey to the Loco Pilot’s seat begins here.")
     d = inprog_load()
     if d:
         left = d["exam"]["duration_minutes"] * 60 - (time.time() - d["start"])
@@ -685,7 +779,7 @@ def pal_css():   # colour each palette button by state (needs Streamlit >= 1.39)
 .st-key-mark button{background:#fef3c7;border-color:#f59e0b;color:#92400e}
 .st-key-clear button{background:#f1f5f9;color:#475569}
 .st-key-nextq button,.st-key-prevq button{min-height:3rem;font-size:1rem}
-.st-key-qcard{border-left:6px solid #4338ca !important}
+.st-key-qcard{border-left:6px solid #c8962e !important}
 .st-key-confirmbox{border:2px solid #f97316 !important;background:#fff7ed !important}
 .prog{height:10px;border-radius:99px;background:#e2e8f0;overflow:hidden}
 .prog div{height:100%;background:linear-gradient(90deg,#16a34a,#0ea5e9);transition:width .4s}
