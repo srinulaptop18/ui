@@ -392,19 +392,37 @@ def _cloud_uri():
 
 @st.cache_data(show_spinner=False)
 def _photo_strip(sig):
-    out = []
+    """Header from the images in assets/. Large files are shrunk first so the page stays fast."""
+    import io
+    from PIL import Image, ImageOps
+    H, GAP, SPEED = 150, 44, 55           # picture height (px), space between pictures (px), scroll speed (px/s)
+    items, setw = [], 0
     for name, _ in sig:
         f = ROOT / "assets" / name
-        mime = {"jpg": "jpeg", "jpeg": "jpeg", "png": "png", "webp": "webp"}[f.suffix.lower().lstrip(".")]
-        cap = html.escape(f.stem.replace("_", " ").replace("-", " ").upper())
-        out.append(f"<figure><img src='data:image/{mime};base64,{base64.b64encode(f.read_bytes()).decode()}'/><figcaption>{cap}</figcaption></figure>")
-    return "<div class='photos'>" + "".join(out) + "</div>"
+        try:
+            im = ImageOps.exif_transpose(Image.open(f))
+            cut = im.mode in ("RGBA", "LA", "P") and im.convert("RGBA").getchannel("A").getextrema()[0] < 250   # transparent background?
+            im = im.convert("RGBA" if cut else "RGB"); im.thumbnail((3000, H * 2))
+        except Exception:
+            continue                       # unreadable image: skip it
+        w = max(1, round(H * im.width / im.height)); buf = io.BytesIO()
+        im.save(buf, "PNG" if cut else "JPEG", **({"optimize": True} if cut else {"quality": 82, "optimize": True}))
+        cap = html.escape(re.sub(r"^\d+[\s_\-]*", "", f.stem).replace("_", " ").replace("-", " ").strip().upper())
+        mime = "png" if cut else "jpeg"
+        items.append(f"<figure class='{'cut' if cut else 'ph'}' style='width:{w}px'><img src='data:image/{mime};base64,{base64.b64encode(buf.getvalue()).decode()}' "
+                     f"style='width:{w}px;height:{H}px'/><figcaption>{cap}</figcaption></figure>")
+        setw += w + GAP
+    if not items: return ""
+    reps = min(12, max(2, -(-2800 // setw) + 1))
+    return (f"<div class='pstrip'><div class='pmv' style='--setw:{setw}px;animation-duration:{setw / SPEED:.0f}s'>"
+            + "".join(items) * reps + "</div></div>")
 
 def train_strip():
     """Your own photos (assets/*.jpg|png|webp) if present, otherwise the animated train scene."""
     adir = ROOT / "assets"
     pics = sorted(f for f in adir.glob("*") if f.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")) if adir.is_dir() else []
-    if pics: return _photo_strip(tuple((f.name, f.stat().st_mtime) for f in pics[:5]))
+    strip = _photo_strip(tuple((f.name, f.stat().st_mtime) for f in pics[:8])) if pics else ""
+    if strip: return strip
     imgs = "".join(f"<img class='tr' src='{_uri(f())}'/>" for f in (_svg_wag12b, _svg_wap9, _svg_mmts)) * 4
     return f"<div class='rail'><div class='mv'>{imgs}</div></div>"
 
@@ -441,10 +459,18 @@ h1,h2,h3,.stApp h1,.stApp h2,.stApp h3,.ecode{font-family:'Playfair Display',Geo
 .rail{position:relative;z-index:4;overflow:hidden;height:112px;margin:10px -40px 0}
 .mv{display:flex;width:max-content;animation:drive 45s linear infinite}.tr{display:block;flex:none;height:112px;width:390px}
 @keyframes drive{from{transform:translateX(-25%)}to{transform:translateX(0)}}
-@media (prefers-reduced-motion:reduce){.mv,.clouds,.hills{animation:none}}
-.photos{position:relative;z-index:4;display:flex;gap:14px;overflow-x:auto;margin:16px 0 22px;padding-bottom:6px}
-.photos figure{margin:0;flex:none}.photos img{height:130px;border-radius:12px;display:block;box-shadow:0 4px 14px rgba(0,0,0,.35)}
-.photos figcaption{color:#fff4d6;font-size:.75rem;font-weight:600;margin-top:4px;text-align:center}
+@media (prefers-reduced-motion:reduce){.mv,.pmv,.clouds,.hills{animation:none}}
+.pstrip{position:relative;z-index:4;margin:10px -40px 0;overflow:hidden}
+.pstrip:after{content:"";display:block;height:20px;border-bottom:6px solid #2e2620;
+  background:repeating-linear-gradient(90deg,#4a382b 0 8px,transparent 8px 13px),linear-gradient(180deg,#d5dbe3 0 3px,#7a6e62 3px 100%)}
+.pmv{display:flex;align-items:flex-end;width:max-content;padding-top:8px;animation:pdrive linear infinite}
+.pstrip:hover .pmv{animation-play-state:paused}
+@keyframes pdrive{from{transform:translateX(calc(-1 * var(--setw)))}to{transform:translateX(0)}}
+.pmv figure{margin:0 44px 0 0;flex:none}.pmv img{display:block;object-fit:cover}
+.pmv .ph img{border-radius:12px;border:2px solid #c8962e;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.pmv .cut img{object-fit:contain;filter:drop-shadow(0 6px 5px rgba(0,0,0,.45))}
+.pmv figcaption{margin:6px auto 4px;width:max-content;max-width:100%;font:700 .68rem 'Lora',Georgia,serif;letter-spacing:.8px;color:#3b2a0a;
+  background:linear-gradient(180deg,#f3d9a0,#c8962e);border-radius:5px;padding:2px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar{background:linear-gradient(90deg,#0b2a4a,#14467a) !important;border-bottom:3px solid #c8962e;box-shadow:0 4px 14px rgba(11,42,74,.3) !important}
 .stats div{border:1px solid #ecdcb8;border-top:4px solid #c8962e;background:rgba(255,253,246,.9)}
 .stats span{background:none !important;-webkit-text-fill-color:#0b2a4a;color:#0b2a4a;font-family:'Playfair Display',serif}
