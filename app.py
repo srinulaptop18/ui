@@ -493,6 +493,19 @@ div[role="radiogroup"] label:has(input:checked){border-color:#c8962e !important;
 st.markdown(THEME_CSS.replace("__CLOUDS__", _cloud_uri()).replace("__FAR__", _hill_uri("#5d7ea6", 80, 46))
             .replace("__NEAR__", _hill_uri("#2f5a45", 96, 40)), unsafe_allow_html=True)
 
+def _mini_train():
+    return _uri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 22" width="52" height="22"><rect x="2" y="3" width="40" height="13" rx="3" fill="#1e4fbf"/>'
+                '<path d="M38 3 H44 Q50 5 51 16 H38Z" fill="#f1f5f9"/><rect x="8" y="6" width="9" height="5" rx="1" fill="#bae6fd"/><rect x="22" y="6" width="9" height="5" rx="1" fill="#bae6fd"/>'
+                '<rect x="2" y="12" width="48" height="2.5" fill="#f59e0b"/>' + "".join(f'<circle cx="{x}" cy="18" r="3" fill="#111827"/>' for x in (12, 22, 34, 44)) + '</svg>')
+
+MOD_CSS = """<style>
+/* small touch: numbered rule badges on the instructions page */
+.inst{list-style:none;padding-left:0;counter-reset:i}.inst li{counter-increment:i;position:relative;padding-left:46px;min-height:32px}
+.inst li:before{content:counter(i);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:50%;background:#0b2a4a;color:#ffd77a;
+  font:700 .95rem 'Playfair Display',serif;display:grid;place-items:center;box-shadow:0 0 0 3px #ecdcb8}
+</style>"""
+st.markdown(MOD_CSS, unsafe_allow_html=True)
+
 def hero(title, sub):
     _, c = st.columns([9, 1.2])
     with c: fs_button()
@@ -789,7 +802,7 @@ if top[3].button("✔ Submit test", key="submit_top", width="stretch"):
     s.confirm = True
 
 done = len(s.answers)
-st.markdown(f"<div class='prog'><div style='width:{100*done/N:.0f}%'></div></div>"
+st.markdown(f"<div class='prog'><div style='width:{100*done/N:.0f}%'></div><img src='{_mini_train()}' style='left:{100*done/N:.0f}%'/></div>"
             f"<div class='progtxt'>{done} of {N} answered · {len(s.marked)} marked for review</div>", unsafe_allow_html=True)
 if s.get("confirm"):
     with st.container(border=True, key="confirmbox"):
@@ -807,8 +820,9 @@ def pal_css():   # colour each palette button by state (needs Streamlit >= 1.39)
 .st-key-nextq button,.st-key-prevq button{min-height:3rem;font-size:1rem}
 .st-key-qcard{border-left:6px solid #c8962e !important}
 .st-key-confirmbox{border:2px solid #f97316 !important;background:#fff7ed !important}
-.prog{height:10px;border-radius:99px;background:#e2e8f0;overflow:hidden}
-.prog div{height:100%;background:linear-gradient(90deg,#16a34a,#0ea5e9);transition:width .4s}
+.prog{position:relative;height:12px;margin-top:20px;border-radius:6px;background:repeating-linear-gradient(90deg,#8a6a4a 0 7px,transparent 7px 12px),#d8cfbe}
+.prog div{height:100%;border-radius:6px;background:linear-gradient(90deg,#2e7d32,#7cb342);transition:width .4s}
+.prog img{position:absolute;top:-17px;width:52px;height:22px;transform:translateX(-85%);transition:left .4s}
 .progtxt{font-size:.8rem;color:#64748b;margin:4px 0 14px}
 [data-testid="stColumn"]:has(.st-key-palbox){position:sticky;top:10px;align-self:flex-start}
 .cnt{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 12px}
