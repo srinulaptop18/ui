@@ -90,10 +90,21 @@ def normalize(raw, code):
                 duration_minutes=raw.get("duration_minutes", 60), marks_per_question=raw.get("marks_per_question", 1),
                 negative_marking=raw.get("negative_marking", 0.0), questions=out)
 
+RESERVED = {"questions", "package", "package-lock", "tsconfig", "manifest", "secrets"}   # json files that are not exams
+
+def exam_files():
+    """Exam .json files from the exams/ folder and from the main folder next to app.py (flat layout)."""
+    seen = {}
+    for d in (EXAMS, ROOT):
+        if d.is_dir():
+            for f in sorted(d.glob("*.json")):
+                if f.stem.lower() not in RESERVED and not f.name.startswith(".") and f.stem.lower() not in seen:
+                    seen[f.stem.lower()] = (f, d == ROOT)
+    return list(seen.values())          # [(path, found_in_main_folder)]
+
 def find_exam(code):
-    for f in EXAMS.glob("*.json"):
-        if f.stem.lower() == code.lower():
-            return f
+    for f, _ in exam_files():
+        if f.stem.lower() == code.lower(): return f
 
 def load_exam(code):
     if not CODE_RE.match(code):
@@ -125,17 +136,19 @@ def list_exams():
     with conn() as c:
         hist = {r[0]: (r[1], r[2]) for r in c.execute("SELECT code, COUNT(*), MAX(score*100.0/maxscore) FROM attempts GROUP BY code")}
     rows = []
-    for f in sorted(EXAMS.glob("*.json"), reverse=True):
+    for f, from_root in sorted(exam_files(), key=lambda t: t[0].stem, reverse=True):
         try:
             raw = json.loads(f.read_text(encoding="utf-8-sig"))
             qs = raw if isinstance(raw, list) else raw.get("questions", [])
+            if from_root and not (isinstance(qs, list) and qs): continue      # other json files in the main folder are not exams
             dur = 60 if isinstance(raw, list) else raw.get("duration_minutes", 60)
             title = "" if isinstance(raw, list) else raw.get("title", "")
             n, best = hist.get(f.stem, (0, None))
             rows.append({"Code": f.stem, "Questions": len(qs), "Minutes": dur, "Title": title,
                          "Attempts": n, "Best %": round(best, 1) if best is not None else None})
-        except (ValueError, OSError):
-            rows.append({"Code": f.stem, "Questions": 0, "Minutes": 0, "Title": "⚠ unreadable file", "Attempts": 0, "Best %": None})
+        except (ValueError, OSError, AttributeError):
+            if not from_root:
+                rows.append({"Code": f.stem, "Questions": 0, "Minutes": 0, "Title": "⚠ unreadable file", "Attempts": 0, "Best %": None})
     return pd.DataFrame(rows)
 
 def save_attempt(code, m, detail, name):
@@ -392,36 +405,46 @@ def _cloud_uri():
 
 @st.cache_data(show_spinner=False)
 def _photo_strip(sig):
-    """Header from the images in assets/. Large files are shrunk first so the page stays fast."""
+    """Header from the images in assets/. Each image is shrunk and embedded ONCE (as a CSS class), then repeated cheaply."""
     import io
     from PIL import Image, ImageOps
-    H, GAP, SPEED = 150, 44, 55           # picture height (px), space between pictures (px), scroll speed (px/s)
-    items, setw = [], 0
-    for name, _ in sig:
-        f = ROOT / "assets" / name
+    H, SPEED = 170, 70                     # picture height (px) and scroll speed (px/s)
+    loaded = []
+    for path, _ in sig:
+        f = Path(path)
         try:
             im = ImageOps.exif_transpose(Image.open(f))
             cut = im.mode in ("RGBA", "LA", "P") and im.convert("RGBA").getchannel("A").getextrema()[0] < 250   # transparent background?
             im = im.convert("RGBA" if cut else "RGB"); im.thumbnail((3000, H * 2))
         except Exception:
             continue                       # unreadable image: skip it
-        w = max(1, round(H * im.width / im.height)); buf = io.BytesIO()
-        im.save(buf, "PNG" if cut else "JPEG", **({"optimize": True} if cut else {"quality": 82, "optimize": True}))
+        buf = io.BytesIO()
+        if cut: im.save(buf, "WEBP", quality=84)
+        else: im.save(buf, "JPEG", quality=82, optimize=True)
         cap = html.escape(re.sub(r"^\d+[\s_\-]*", "", f.stem).replace("_", " ").replace("-", " ").strip().upper())
-        mime = "png" if cut else "jpeg"
-        items.append(f"<figure class='{'cut' if cut else 'ph'}' style='width:{w}px'><img src='data:image/{mime};base64,{base64.b64encode(buf.getvalue()).decode()}' "
-                     f"style='width:{w}px;height:{H}px'/><figcaption>{cap}</figcaption></figure>")
-        setw += w + GAP
-    if not items: return ""
-    reps = min(12, max(2, -(-2800 // setw) + 1))
-    return (f"<div class='pstrip'><div class='pmv' style='--setw:{setw}px;animation-duration:{setw / SPEED:.0f}s'>"
-            + "".join(items) * reps + "</div></div>")
+        loaded.append((max(1, round(H * im.width / im.height)), cut, base64.b64encode(buf.getvalue()).decode(), cap))
+    if not loaded: return ""
+    min_gap = 150 if any(c for _, c, _, _ in loaded) else 44               # cut-out trains: keep a clear gap so they read as separate trains
+    gap = max(min_gap, (1500 - sum(w for w, *_ in loaded)) // len(loaded))
+    css = "".join(f".p{i}{{background-image:url(data:image/{'webp' if c else 'jpeg'};base64,{b})}}" for i, (w, c, b, _) in enumerate(loaded))
+    items = "".join(f"<figure class='{'cut' if c else 'ph'}' style='width:{w}px;margin-right:{gap}px'><div class='pi p{i}' style='width:{w}px;height:{H}px'></div>"
+                    f"<figcaption>{cap}</figcaption></figure>" for i, (w, c, b, cap) in enumerate(loaded))
+    setw = sum(w + gap for w, *_ in loaded); reps = min(12, max(2, -(-2800 // setw) + 1))
+    wired = " wired" if any(c for _, c, _, _ in loaded) else ""            # cut-out trains run under a continuous overhead wire
+    return (f"<style>{css}</style><div class='pstrip{wired}'><div class='pmv' style='--setw:{setw}px;animation-duration:{setw / SPEED:.0f}s'>"
+            + items * reps + "</div></div>")
 
 def train_strip():
-    """Your own photos (assets/*.jpg|png|webp) if present, otherwise the animated train scene."""
+    """Your own images (assets/ folder, or numbered images in the main folder) if present, otherwise the drawn trains."""
+    found = {}
     adir = ROOT / "assets"
-    pics = sorted(f for f in adir.glob("*") if f.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp")) if adir.is_dir() else []
-    strip = _photo_strip(tuple((f.name, f.stat().st_mtime) for f in pics[:8])) if pics else ""
+    if adir.is_dir():
+        for f in adir.iterdir():
+            if f.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp"): found[f.name.lower()] = f
+    for f in ROOT.iterdir():                # main folder: only numbered files such as 1_WAG-12B.png, so other images are never picked up
+        if f.is_file() and f.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp") and re.match(r"^\d+[\s_\-]", f.name): found.setdefault(f.name.lower(), f)
+    pics = sorted(found.values(), key=lambda f: f.name.lower())
+    strip = _photo_strip(tuple((str(f), f.stat().st_mtime) for f in pics[:8])) if pics else ""
     if strip: return strip
     imgs = "".join(f"<img class='tr' src='{_uri(f())}'/>" for f in (_svg_wag12b, _svg_wap9, _svg_mmts)) * 4
     return f"<div class='rail'><div class='mv'>{imgs}</div></div>"
@@ -466,9 +489,12 @@ h1,h2,h3,.stApp h1,.stApp h2,.stApp h3,.ecode{font-family:'Playfair Display',Geo
 .pmv{display:flex;align-items:flex-end;width:max-content;padding-top:8px;animation:pdrive linear infinite}
 .pstrip:hover .pmv{animation-play-state:paused}
 @keyframes pdrive{from{transform:translateX(calc(-1 * var(--setw)))}to{transform:translateX(0)}}
-.pmv figure{margin:0 44px 0 0;flex:none}.pmv img{display:block;object-fit:cover}
-.pmv .ph img{border-radius:12px;border:2px solid #c8962e;box-shadow:0 6px 16px rgba(0,0,0,.4)}
-.pmv .cut img{object-fit:contain;filter:drop-shadow(0 6px 5px rgba(0,0,0,.45))}
+.pmv figure{margin:0;flex:none;position:relative}.pi{display:block;background-size:100% 100%;background-repeat:no-repeat}
+.pmv .ph .pi{border-radius:12px;border:2px solid #c8962e;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.pmv .cut .pi{filter:drop-shadow(0 6px 5px rgba(0,0,0,.45))}
+.pstrip.wired .pmv{padding-top:36px;position:relative;z-index:1}
+.pstrip.wired:before{content:"";position:absolute;left:0;right:0;top:36px;height:2px;background:#5f6b7a;z-index:0}
+.pmv .cut figcaption{position:absolute;top:-30px;left:50%;transform:translateX(-50%);margin:0}
 .pmv figcaption{margin:6px auto 4px;width:max-content;max-width:100%;font:700 .68rem 'Lora',Georgia,serif;letter-spacing:.8px;color:#3b2a0a;
   background:linear-gradient(180deg,#f3d9a0,#c8962e);border-radius:5px;padding:2px 10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .topbar{background:linear-gradient(90deg,#0b2a4a,#14467a) !important;border-bottom:3px solid #c8962e;box-shadow:0 4px 14px rgba(11,42,74,.3) !important}
@@ -509,9 +535,11 @@ st.markdown(MOD_CSS, unsafe_allow_html=True)
 def hero(title, sub):
     _, c = st.columns([9, 1.2])
     with c: fs_button()
+    strip = train_strip(); m = re.match(r"\s*(<style>.*?</style>)", strip, re.S)
+    if m: st.markdown(m.group(1), unsafe_allow_html=True); strip = strip[m.end():]
     caps = "".join(f"<span style='animation-delay:{i*5}s'>{html.escape(t)}</span>" for i, t in enumerate(CAPTIONS))
     st.markdown(f"<div class='hero'><div class='clouds'></div><div class='hills far'></div><div class='hills near'></div>"
-                f"<div class='htxt'><h1>{title}</h1><p>{sub}</p><div class='caps'>{caps}</div></div>{train_strip()}</div>", unsafe_allow_html=True)
+                f"<div class='htxt'><h1>{title}</h1><p>{sub}</p><div class='caps'>{caps}</div></div>{strip}</div>", unsafe_allow_html=True)
 
 st.markdown("""<style>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
@@ -676,7 +704,7 @@ if "exam" not in s:
         if go: open_exam(typed, neg)
         upload_panel(neg)
         st.markdown("### 🗂 Choose a test")
-        if avail.empty: st.info("No exam files found in the exams folder.")
+        if avail.empty: st.info("No exam files found. Put exam .json files in the main folder next to app.py, or in an exams folder.")
         rows = avail.to_dict("records")
         for r0 in range(0, len(rows), 3):
             for col, r in zip(st.columns(3), rows[r0:r0 + 3]):
