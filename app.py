@@ -468,7 +468,7 @@ h1,h2,h3,.stApp h1,.stApp h2,.stApp h3,.ecode{font-family:'Playfair Display',Geo
              linear-gradient(180deg,#0b2a4a 0%,#244f7d 34%,#e9a15f 76%,#ffd9a0 100%) !important}
 .hero:after{content:none !important}
 .clouds,.hills{position:absolute;left:0;right:0;pointer-events:none}
-.clouds{top:0;height:130px;background:url("__CLOUDS__") repeat-x 0 14px;background-size:900px 120px;opacity:.55;animation:drift1 170s linear infinite}
+.clouds{top:0;height:130px;background:url("__CLOUDS__") repeat-x 0 14px;background-size:900px 120px;opacity:.9;animation:drift1 170s linear infinite}
 .hills{height:140px}
 .hills.far{bottom:44px;background:url("__FAR__") repeat-x bottom;background-size:600px 140px;opacity:.7;animation:drift2 240s linear infinite}
 .hills.near{bottom:26px;background:url("__NEAR__") repeat-x bottom;background-size:600px 140px;animation:drift2 130s linear infinite}
@@ -488,7 +488,7 @@ h1,h2,h3,.stApp h1,.stApp h2,.stApp h3,.ecode{font-family:'Playfair Display',Geo
   background:repeating-linear-gradient(90deg,#4a382b 0 8px,transparent 8px 13px),linear-gradient(180deg,#d5dbe3 0 3px,#7a6e62 3px 100%)}
 .pmv{display:flex;align-items:flex-end;width:max-content;padding-top:8px;animation:pdrive linear infinite}
 .pstrip:hover .pmv{animation-play-state:paused}
-@keyframes pdrive{from{transform:translateX(calc(-1 * var(--setw)))}to{transform:translateX(0)}}
+@keyframes pdrive{from{transform:translateX(0)}to{transform:translateX(calc(-1 * var(--setw)))}}   /* right to left: trains with a cab on the left run head-first */
 .pmv figure{margin:0;flex:none;position:relative}.pi{display:block;background-size:100% 100%;background-repeat:no-repeat}
 .pmv .ph .pi{border-radius:12px;border:2px solid #c8962e;box-shadow:0 6px 16px rgba(0,0,0,.4)}
 .pmv .cut .pi{filter:drop-shadow(0 6px 5px rgba(0,0,0,.45))}
@@ -519,22 +519,28 @@ div[role="radiogroup"] label:has(input:checked){border-color:#c8962e !important;
 st.markdown(THEME_CSS.replace("__CLOUDS__", _cloud_uri()).replace("__FAR__", _hill_uri("#5d7ea6", 80, 46))
             .replace("__NEAR__", _hill_uri("#2f5a45", 96, 40)), unsafe_allow_html=True)
 
-def _mini_train():
-    return _uri('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 22" width="52" height="22"><rect x="2" y="3" width="40" height="13" rx="3" fill="#1e4fbf"/>'
-                '<path d="M38 3 H44 Q50 5 51 16 H38Z" fill="#f1f5f9"/><rect x="8" y="6" width="9" height="5" rx="1" fill="#bae6fd"/><rect x="22" y="6" width="9" height="5" rx="1" fill="#bae6fd"/>'
-                '<rect x="2" y="12" width="48" height="2.5" fill="#f59e0b"/>' + "".join(f'<circle cx="{x}" cy="18" r="3" fill="#111827"/>' for x in (12, 22, 34, 44)) + '</svg>')
-
 MOD_CSS = """<style>
 /* small touch: numbered rule badges on the instructions page */
 .inst{list-style:none;padding-left:0;counter-reset:i}.inst li{counter-increment:i;position:relative;padding-left:46px;min-height:32px}
 .inst li:before{content:counter(i);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:50%;background:#0b2a4a;color:#ffd77a;
   font:700 .95rem 'Playfair Display',serif;display:grid;place-items:center;box-shadow:0 0 0 3px #ecdcb8}
+/* calm banner for instructions / results */
+.hero.slim{padding:26px 36px 24px !important;background:linear-gradient(120deg,#0b2a4a,#14467a 70%,#1d5a94) !important}
+.hero.slim h1{font-size:2rem !important}
+/* answer options: full-width cards */
+[data-testid="stRadio"],[data-testid="stRadio"]>div,[data-testid="stRadio"] div[role="radiogroup"]{width:100% !important}
+[data-testid="stRadio"] div[role="radiogroup"]{display:flex;flex-direction:column;gap:10px}
+[data-testid="stRadio"] label{width:100% !important;max-width:none !important;display:flex !important;align-items:center;margin:0 !important}
+/* style-only blocks must not add blank gaps at the top of the page */
+[data-testid="stElementContainer"]:has(style){display:none !important}
 </style>"""
 st.markdown(MOD_CSS, unsafe_allow_html=True)
 
-def hero(title, sub):
+def hero(title, sub, trains=True):
     _, c = st.columns([9, 1.2])
     with c: fs_button()
+    if not trains:
+        st.markdown(f"<div class='hero slim'><div class='htxt'><h1>{title}</h1><p>{sub}</p></div></div>", unsafe_allow_html=True); return
     strip = train_strip(); m = re.match(r"\s*(<style>.*?</style>)", strip, re.S)
     if m: st.markdown(m.group(1), unsafe_allow_html=True); strip = strip[m.end():]
     caps = "".join(f"<span style='animation-delay:{i*5}s'>{html.escape(t)}</span>" for i, t in enumerate(CAPTIONS))
@@ -635,7 +641,7 @@ def section_panel(ex):
     return dict(ex, questions=qs, duration_minutes=mins)
 
 def instructions():
-    hero("📋 Instructions", html.escape(s.pending["title"]))
+    hero("📋 Instructions", html.escape(s.pending["title"]), trains=False)
     ex = section_panel(s.pending); Qs = ex["questions"]; n = len(Qs); mins = ex["duration_minutes"]
     neg, mpq = ex.get("negative_marking", 0.0), ex.get("marks_per_question", 1)
     negtxt = (f"<b>{'1/3' if abs(neg-NEG_RRB)<.01 else f'{neg:.2f}'} mark</b> is deducted for every wrong answer."
@@ -651,7 +657,7 @@ def instructions():
 <li><b>Mark for review</b> flags a question to revisit. A marked question that has an answer is still evaluated.</li>
 <li><b>Clear</b> removes your selected answer for the current question.</li>
 <li>A small timer shows the time spent on the current question. It feeds your speed analysis after the test.</li>
-<li><b>Do not refresh or close this page</b> during the test: the attempt cannot be resumed.</li>
+<li>Keep this page open during the test. If it refreshes by accident, open the <b>same web address</b> again (it ends with <i>?sid=…</i>) and click <b>Resume</b>. The clock keeps running while you are away.</li>
 <li>Click <b>Submit test</b> and confirm to finish early. You will then see your score, topic analysis and a downloadable report.</li></ol>""",
                     unsafe_allow_html=True)
         st.markdown("**Palette colours**")
@@ -735,7 +741,7 @@ if s.submitted:
     m = dict(score=score, max=N*MPQ, correct=c, wrong=w, skipped=sk, accuracy=100*c/max(c+w, 1), total_time=total_t, neg=NEG)
     if not s.saved:
         save_attempt(exam["code"], m, det, s.name); s.saved = True
-    hero(f"📊 Result – {html.escape(s.name)}", f"{html.escape(exam['title'])} · {datetime.now():%d %b %Y}")
+    hero(f"📊 Result – {html.escape(s.name)}", f"{html.escape(exam['title'])} · {datetime.now():%d %b %Y}", trains=False)
     k = st.columns(4)
     k[0].metric("Score", f"{score:.2f} / {N*MPQ}"); k[1].metric("Correct", c); k[2].metric("Wrong", w); k[3].metric("Skipped", sk)
     k = st.columns(3)
@@ -830,7 +836,7 @@ if top[3].button("✔ Submit test", key="submit_top", width="stretch"):
     s.confirm = True
 
 done = len(s.answers)
-st.markdown(f"<div class='prog'><div style='width:{100*done/N:.0f}%'></div><img src='{_mini_train()}' style='left:{100*done/N:.0f}%'/></div>"
+st.markdown(f"<div class='prog'><div style='width:{100*done/N:.0f}%'></div></div>"
             f"<div class='progtxt'>{done} of {N} answered · {len(s.marked)} marked for review</div>", unsafe_allow_html=True)
 if s.get("confirm"):
     with st.container(border=True, key="confirmbox"):
@@ -848,9 +854,8 @@ def pal_css():   # colour each palette button by state (needs Streamlit >= 1.39)
 .st-key-nextq button,.st-key-prevq button{min-height:3rem;font-size:1rem}
 .st-key-qcard{border-left:6px solid #c8962e !important}
 .st-key-confirmbox{border:2px solid #f97316 !important;background:#fff7ed !important}
-.prog{position:relative;height:12px;margin-top:20px;border-radius:6px;background:repeating-linear-gradient(90deg,#8a6a4a 0 7px,transparent 7px 12px),#d8cfbe}
-.prog div{height:100%;border-radius:6px;background:linear-gradient(90deg,#2e7d32,#7cb342);transition:width .4s}
-.prog img{position:absolute;top:-17px;width:52px;height:22px;transform:translateX(-85%);transition:left .4s}
+.prog{height:10px;margin-top:6px;border-radius:999px;background:#e8dcc0;overflow:hidden}
+.prog div{height:100%;border-radius:999px;background:linear-gradient(90deg,#2e7d32,#7cb342);transition:width .4s}
 .progtxt{font-size:.8rem;color:#64748b;margin:4px 0 14px}
 [data-testid="stColumn"]:has(.st-key-palbox){position:sticky;top:10px;align-self:flex-start}
 .cnt{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:4px 0 12px}
@@ -869,7 +874,7 @@ main, pal = st.columns([3, 1.1])
 i = s.cur; q = Q[i]
 with main:
     with st.container(border=True, key="qcard"):
-        st.markdown(f"<div class='qmeta'><span>Q {i+1} / {N}</span><span>{html.escape(q['section'])}</span><span>{html.escape(q['topic'])}</span><span>{html.escape(q['difficulty'])}</span></div>"
+        st.markdown(f"<div class='qmeta'><span>Q {i+1} / {N}</span><span>{html.escape(q['section'])}</span>{'' if q['topic'] == q['section'] else '<span>' + html.escape(q['topic']) + '</span>'}<span>{html.escape(q['difficulty'])}</span></div>"
                     f"<div class='qtext'>{q['question']}</div>", unsafe_allow_html=True)
         st.radio("Options", range(4), index=s.answers.get(i), key=f"opt{i}", label_visibility="collapsed",
                  format_func=lambda k: f"{'ABCD'[k]}.  {q['options'][k]}", on_change=save_answer, args=(i,))
@@ -884,7 +889,7 @@ with main:
 def pal_buttons(idxs):
     cols = st.columns(5)
     for n, k in enumerate(idxs):
-        cols[n % 5].button(str(k+1), key=f"p{k}", on_click=goto, args=(k,))
+        cols[n % 5].button(str(k+1), key=f"p{k}", on_click=goto, args=(k,), width="stretch")
 
 with pal:
     with st.container(border=True, key="palbox"):
